@@ -21,7 +21,6 @@ export default [
       "indent": ["error", 2],
       "no-console": ["error", { allow: ["warn", "info", "trace","error"] }],
       "no-trailing-spaces": "error",
-      "camelcase": ["error", { "properties": "always" }],
       "no-duplicate-imports": "error",
       "no-else-return": "error"
     }
