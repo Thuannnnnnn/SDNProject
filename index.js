@@ -1,7 +1,7 @@
 // app.js
 import express from 'express';
 const app = express();
-const port = 6868;
+const port = 80;
 
 app.get('/', (req, res) => {
   res.send('Hello from Dockerized Node.js app!');
