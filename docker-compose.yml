@@ -1,8 +1,0 @@
-services:
-  node-app:
-    build: .
-    ports:
-      - "6868:6868"
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
