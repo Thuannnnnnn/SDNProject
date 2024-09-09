@@ -1,6 +1,7 @@
 import User from '../model/userModel.js';
 import connectDB from '../config/connectDB.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 export const createUser = async (req, res) => {
   try {
     const { name, email, password, role, gender, phoneNumber } = req.body;
@@ -40,6 +41,6 @@ export const findUserByEmail = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.URIDB });
   }
 };
