@@ -1,4 +1,5 @@
 import User from '../model/userModel.js';
+import connectDB from '../config/connectDB.js';
 
 export const createUser = async (req, res) => {
   try {
@@ -31,6 +32,7 @@ export const createUser = async (req, res) => {
 export const findUserByEmail = async (req, res) => {
   try {
     const email = req.params.email;
+    await connectDB();
     const user = await User.findOne({ email });
 
     if (!user) {
