@@ -41,6 +41,6 @@ export const findUserByEmail = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: process.env.URIDB });
+    res.status(500).json({ message: error });
   }
 };
