@@ -1,4 +1,6 @@
 import User from '../model/userModel.js';
+import connectDB from '../config/connectDB.js';
+import dotenv from 'dotenv';
 const express = require('express');
 const router = express.Router();
 
@@ -123,6 +125,7 @@ export const createUser = async (req, res) => {
 export const findUserByEmail = async (req, res) => {
   try {
     const email = req.params.email;
+    await connectDB();
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -130,6 +133,6 @@ export const findUserByEmail = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error });
   }
 };
