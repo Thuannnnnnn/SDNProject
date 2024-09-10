@@ -167,39 +167,55 @@ export const register = async (req, res) => {
   }
 };
 
-
 export const sendOtpRegister = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ message: 'User already uses this email, please try another email' });
+    const existingUser = await User.findOne({ email }).select('name');
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already registered. Please try logging in.' });
     }
 
     const randomNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    const subject = "Your Registration OTP";
-    const title = "OTP for Registration";
-    const content = `Hello,\n\nYour OTP code for completing the registration is: **Your OTP Code is: <strong>${randomNumber}</strong> Please use this code to verify your account.\n\nBest regards,\nThe GR5 Team`;
 
-    await sendOtp(email, subject, title, content);
+    // Prepare email content for OTP verification during registration
+    const subject = "Account Verification - OTP for Registration";
+    const title = "Account Verification";
+    const content = `Hello,
+
+We received a request to register an account with your email. Please enter the OTP code below to verify your email and complete the registration:
+
+**Your OTP Code is: <strong>${randomNumber}</strong>**
+
+This code will expire in 10 minutes. If you did not request a registration, please ignore this email.
+
+Thank you for using our services!
+
+Best regards,
+The GR5 Team
+`;
 
     const expirationTime = new Date(Date.now() + 10 * 60 * 1000);
+
     const newOtp = new Otp({
-      email: email,
+      email,
       otp: randomNumber,
       expired: expirationTime
     });
-    const oldOtp = await Otp.findOne({ email: email });
+
+    const oldOtp = await Otp.findOne({ email });
     if (oldOtp) {
-      await Otp.deleteOne({ email: email });
+      await Otp.deleteOne({ email });
     }
+
     await newOtp.save();
+
+    await SendEmail(email, subject, title, content);
 
     return res.status(200).json({ message: 'OTP sent successfully to email.' });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Server error' });
+    console.error('Error sending OTP:', err);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
