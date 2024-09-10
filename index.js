@@ -5,7 +5,7 @@ import userRouter from "./router/userRouter.js";
 import authRouter from "./router/authRouter.js";
 import cookieParser from "cookie-parser";
 import authMiddleware from "./middleware/authMiddleware.js";
-const { specs, swaggerUi } = require("./swagger");
+import { specs, swaggerUi } from "./config/swagger.js";
 const app = express();
 const port = 8080;
 
