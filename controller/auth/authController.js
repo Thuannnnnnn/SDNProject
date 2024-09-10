@@ -104,15 +104,17 @@ export const validateOtp = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-export const changePW = async(req, res) =>{
-  try{
-    const {otpCode, email, oldPW, newPW} = req.body;
+
+
+export const changePW = async (req, res) => {
+  try {
+    const { otpCode, email, oldPW, newPW } = req.body;
     const user = await User.findOne({ email });
     const otp = await Otp.findOne({ email: email, otp: otpCode });
-    if(!user){
-      return res.status(404).json({message: 'User not found'});
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    if(oldPW !== newPW){
+    if (oldPW !== newPW) {
       return res.status(401).json({ message: 'Old password is incorrect' });
     }
     if (!otp) {
@@ -125,7 +127,79 @@ export const changePW = async(req, res) =>{
     await user.save();
     await Otp.deleteOne({ email: email });
     res.status(200).json({ message: 'Password updated successfully' });
-  } catch(err){
+  } catch (err) {
     console.error(err);
+  }
+
+
+};
+
+export const register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    const hashedPassword = hashString(password);
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: "customer"
+    });
+    await newUser.save();
+
+
+    const subject = "Welcome to GR5";
+    const title = "Registration Successful!";
+    const content = `Hello ${name},\n\nThank you for registering with GR5. We're excited to have you!\n\nBest regards,\nThe GR5 Team`;
+    await SendEmail(email, subject, title, content);
+
+    return res.status(201).json({ message: 'Registration successful, confirmation email sent.' });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+export const sendOtpRegister = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ message: 'User already uses this email, please try another email' });
+    }
+
+    const randomNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    const subject = "Your Registration OTP";
+    const title = "OTP for Registration";
+    const content = `Hello,\n\nYour OTP code for completing the registration is: **Your OTP Code is: <strong>${randomNumber}</strong> Please use this code to verify your account.\n\nBest regards,\nThe GR5 Team`;
+
+    await sendOtp(email, subject, title, content);
+
+    const expirationTime = new Date(Date.now() + 10 * 60 * 1000);
+    const newOtp = new Otp({
+      email: email,
+      otp: randomNumber,
+      expired: expirationTime
+    });
+    const oldOtp = await Otp.findOne({ email: email });
+    if (oldOtp) {
+      await Otp.deleteOne({ email: email });
+    }
+    await newOtp.save();
+
+    return res.status(200).json({ message: 'OTP sent successfully to email.' });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
