@@ -35,9 +35,9 @@ export const login = async (req, res) => {
   }
 };
 
-export const sendOtp = async (req, res) => {
+export const sendOtpForgotPW = async (req, res) => {
   try {
-    const { email } = req.body;  // Corrected from `toSting()`
+    const { email } = req.body;
     const subject = "Password Recovery";
     const user = await User.findOne({ email }).select('name');
     if (!user) {
@@ -87,7 +87,7 @@ const isOtpExpired = (otp) => {
 
 export const validateOtp = async (req, res) => {
   try {
-    const { email, otpCode } = req.body;  // Corrected from `req.body`
+    const { email, otpCode } = req.body;
 
     const otp = await Otp.findOne({ email: email, otp: otpCode });
     if (!otp) {
