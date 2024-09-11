@@ -71,7 +71,7 @@ The GR5 Team
     await newOtp.save();
     await SendEmail(email, subject, title, content);
 
-    res.status(200).json({ message: 'OTP sent successfully' });
+    res.status(200).json({ message: 'OTP sent successfully', content });
 
   } catch (err) {
     console.error('Error:', err);
@@ -212,7 +212,7 @@ The GR5 Team
 
     await SendEmail(email, subject, title, content);
 
-    return res.status(200).json({ message: 'OTP sent successfully to email.' });
+    return res.status(200).json({ message: 'OTP sent successfully to email.', content });
 
   } catch (err) {
     console.error('Error sending OTP:', err);

@@ -8,7 +8,9 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const templatePath = path.resolve(__dirname, 'template/email/index.html');
-let htmlContent = fs.readFileSync(templatePath, 'utf-8');
+
+const originalHtmlContent = fs.readFileSync(templatePath, 'utf-8');
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -16,19 +18,16 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+
 async function SendEmail(email, subject, title, content) {
   try {
-    const data = {
-      title: title,
-      content: content,
-    };
-    htmlContent = htmlContent.replace('{{title}}', data.title);
-    htmlContent = htmlContent.replace('{{content}}', data.content);
+    let htmlContent = originalHtmlContent;
+    const finalContent = htmlContent.replace('{{title}}', title).replace('{{content}}', content);
     await transporter.sendMail({
-      from: `SDNGR5" <${process.env.EMAIL_USERNAME}>`,
+      from: `SDNGR5 <${process.env.EMAIL_USERNAME}>`,
       to: email,
       subject: subject,
-      html: htmlContent,
+      html: finalContent,
     });
   } catch (error) {
     console.error("Error sending email:", error);
