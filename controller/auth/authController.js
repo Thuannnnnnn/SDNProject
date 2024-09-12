@@ -43,7 +43,7 @@ export const sendOtpForgotPW = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    const randomNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     const title = "Account Verification - OTP for Password Reset";
     const content = `Hello ${user.name},
 
@@ -176,7 +176,7 @@ export const sendOtpRegister = async (req, res) => {
       return res.status(400).json({ message: 'Email is already registered. Please try logging in.' });
     }
 
-    const randomNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
 
     // Prepare email content for OTP verification during registration
     const subject = "Account Verification - OTP for Registration";
