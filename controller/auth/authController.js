@@ -165,8 +165,6 @@ export const register = async (req, res) => {
     });
 
     await newUser.save();
-
-    
     await Otp.deleteOne({ email });
 
 
