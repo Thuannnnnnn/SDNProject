@@ -136,28 +136,41 @@ export const changePW = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, otp } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    const hashedPassword = hashString(password);
+    const existingOtp = await Otp.findOne({ email });
+    if (!existingOtp) {
+      return res.status(400).json({ message: 'OTP not found. Please request a new OTP.' });
+    }
 
+    if (existingOtp.otp !== otp) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+
+    if (existingOtp.expired < new Date()) {
+      return res.status(400).json({ message: 'OTP has expired. Please request a new OTP.' });
+    }
+
+    const hashedPassword = hashString(password);
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
       role: "customer"
     });
+
     await newUser.save();
 
+    
+    await Otp.deleteOne({ email });
 
-    const subject = "Welcome to GR5";
-    const title = "Registration Successful!";
-    const content = `Hello ${name},\n\nThank you for registering with GR5. We're excited to have you!\n\nBest regards,\nThe GR5 Team`;
-    await SendEmail(email, subject, title, content);
+
+    await SendEmail(email);
 
     return res.status(201).json({ message: 'Registration successful, confirmation email sent.' });
 
@@ -166,6 +179,7 @@ export const register = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 export const sendOtpRegister = async (req, res) => {
   try {
