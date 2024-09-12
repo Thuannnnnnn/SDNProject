@@ -170,7 +170,10 @@ export const register = async (req, res) => {
     await Otp.deleteOne({ email });
 
 
-    await SendEmail(email);
+    const subject = "Welcome to GR5";
+    const title = "Registration Successful!";
+    const content = `Hello ${name},\n\nThank you for registering with GR5. We're excited to have you!\n\nBest regards,\nThe GR5 Team`;
+    await SendEmail(email, subject, title, content);
 
     return res.status(201).json({ message: 'Registration successful, confirmation email sent.' });
 
