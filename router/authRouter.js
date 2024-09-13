@@ -54,5 +54,45 @@ authRouter.post("/validate-otp", validateOtp);
 authRouter.post("/change-password", changePW);
 authRouter.post("/register", register);
 authRouter.post("/sendOtpRegister", sendOtpRegister);
+
+
+/**
+ * @swagger
+ * /api/auth/login/withGoogle:
+ *   post:
+ *     summary: User login with base credentials
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *                 example: user@example.com
+ *               name:
+ *                 type: string
+ *                 description: User password
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Successfully logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Authentication token
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       401:
+ *         description: Unauthorized, invalid credentials
+ *       500:
+ *         description: Internal server error
+ */
 authRouter.post("/login/withGoogle", loginWithGoogle);
 export default authRouter;

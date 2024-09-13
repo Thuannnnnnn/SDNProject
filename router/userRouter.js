@@ -52,7 +52,7 @@ userRouter.get('/email/:email', findUserByEmail);
 
 /**
  * @swagger
- * api/user/createUsers:
+ * /api/user/createUsers:
  *   post:
  *     tags: [Users]
  *     summary: Create a new user
@@ -112,7 +112,7 @@ userRouter.post('/createUsers', createUser);
 
 /**
  * @swagger
- * api/user/findAll:
+ * /api/user/findAll:
  *   get:
  *     summary: Get all users
  *     tags: [Users]

@@ -24,6 +24,9 @@ const users= new mongoose.Schema({
   phoneNumber:{
     type : String,
   },
+  // uid: {
+  //   type: String,
+  // }
 });
 
 
