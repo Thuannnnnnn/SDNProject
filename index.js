@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import authMiddleware from "./middleware/authMiddleware.js";
 import { specs, swaggerUi } from "./config/swagger.js";
 const app = express();
-const port = 3030;
+const port = 8080;
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
