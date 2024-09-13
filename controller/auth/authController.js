@@ -1,19 +1,10 @@
 import User from "../../model/userModel.js";
 import hashString from "../../utilis/hash256.js";
 import encode from "../../utilis/jwt.js";
-import firebaseAdmin from "../../config/firebase.js";
 
 export const loginWithGoogle = async (req, res) => {
   try {
-    const { token } = req.body;
-
-    if (!token) {
-      return res.status(400).json({ message: "Token is required" });
-    }
-
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-
-    const { email, name, uid } = decodedToken;
+    const {  email, name, uid } = req.body;
     let user = await User.findOne({ email });
     if (!user) {
       user = new User({

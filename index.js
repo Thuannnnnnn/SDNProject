@@ -20,6 +20,8 @@ app.get('/', (req, res) => {
 // app.get('/', (req, res) => {
 //   res.send("Hello");
 // });
+
+
 app.use("/api/user", authMiddleware, userRouter);
 app.use("/api/auth", authRouter);
 app.get("/", (req, res) => {
