@@ -280,3 +280,26 @@ The GR5 Team
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const changPWUser = async (req, res) =>{
+  try{
+    const {email,oldPW, newPW, reNewPW} = req.body;
+    const user = await User.findOne({ email }).select("password");
+    if(!user){
+      return res.status(404).json({message: "User not found"});
+    }
+    if(user.password !== hashString(oldPW)){
+      console.log(user.password);
+      console.log(hashString(oldPW));
+      return res.status(400).json({message: "Password invalid"});
+    }
+    if(hashString(newPW) !== hashString(reNewPW)){
+      return res.status(400).json({message: "New Password and reNew Password not same"});
+    }
+    user.password = hashString(newPW);
+    user.save();
+    res.status(200).json({message: "Password updated"});
+  }catch(error){
+    res.status(500).json({message: error});
+  }
+};

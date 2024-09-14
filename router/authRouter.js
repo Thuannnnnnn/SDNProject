@@ -1,4 +1,4 @@
-import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle} from "../controller/auth/authController.js";
+import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changPWUser} from "../controller/auth/authController.js";
 import express from "express";
 
 const authRouter = express.Router();
@@ -54,6 +54,7 @@ authRouter.post("/validate-otp", validateOtp);
 authRouter.post("/change-password", changePW);
 authRouter.post("/register", register);
 authRouter.post("/sendOtpRegister", sendOtpRegister);
+authRouter.post("/changPWUser", changPWUser);
 
 
 /**
