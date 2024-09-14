@@ -1,6 +1,6 @@
 import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changPWUser} from "../controller/auth/authController.js";
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js"
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const authRouter = express.Router();
 /**
