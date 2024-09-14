@@ -289,8 +289,6 @@ export const changPWUser = async (req, res) =>{
       return res.status(404).json({message: "User not found"});
     }
     if(user.password !== hashString(oldPW)){
-      console.log(user.password);
-      console.log(hashString(oldPW));
       return res.status(400).json({message: "Password invalid"});
     }
     if(hashString(newPW) !== hashString(reNewPW)){
