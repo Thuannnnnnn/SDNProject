@@ -3,6 +3,7 @@ import cors from "cors";
 import connectDB from "./config/connectDB.js";
 import userRouter from "./router/userRouter.js";
 import authRouter from "./router/authRouter.js";
+import courseRouter from "./router/courseRouter.js";
 import cookieParser from "cookie-parser";
 import authMiddleware from "./middleware/authMiddleware.js";
 import { specs, swaggerUi } from "./config/swagger.js";
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 
 
 app.use("/api/user", authMiddleware, userRouter);
+app.use("/api/course", authMiddleware, courseRouter);
 app.use("/api/auth", authRouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
