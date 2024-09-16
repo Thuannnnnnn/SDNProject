@@ -13,9 +13,18 @@ export async function getQuestions(req, res) {
 }
 
 export async function insertquestions(req, res) {
+    const { questions, answers } = req.body;
+
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        return res.status(400).json({ error: "Questions are required" });
+    }
+
+    if (!answers || !Array.isArray(answers) || answers.length === 0) {
+        return res.status(400).json({ error: "Answers are required" });
+    }
+
     try {
         const insert = await Question.insertMany({ questions, answers });
-
         res.status(200).json({ msg: "Data saved successfully!", data: insert });
     } catch (error) {
         res.status(500).json({ error: "Error saving data", details: error });
@@ -66,3 +75,5 @@ export async function dropresult(req, res) {
         res.status(500).json({ error: "Error deleting answers", details: error.message });
     }
 }
+
+
