@@ -22,7 +22,7 @@ export async function insertQuestions(req, res) {
 
     const insertedQuestions = await Question.insertMany(questionsData);
 
-    res.status(200).json({ msg: "Questions inserted successfully!", data: insertedQuestions });
+    res.status(200).json({ message : "Questions inserted successfully!", data: insertedQuestions });
   } catch (error) {
     res.status(500).json({ error: "Error inserting questions", details: error.message });
   }
@@ -31,7 +31,7 @@ export async function insertQuestions(req, res) {
 export async function dropQuestions(req, res) {
   try {
     const result = await Question.deleteMany();
-    res.status(200).json({ msg: "Questions deleted successfully!", deletedCount: result.deletedCount });
+    res.status(200).json({ message : "Questions deleted successfully!", deletedCount: result.deletedCount });
   } catch (error) {
     res.status(500).json({ error: "Error deleting questions", details: error.message });
   }
@@ -63,7 +63,7 @@ export async function storeResult(req, res) {
     });
 
     await newResult.save();
-    res.status(200).json({ msg: "Result saved successfully!", data: newResult });
+    res.status(200).json({ message : "Result saved successfully!", data: newResult });
   } catch (error) {
     res.status(500).json({ error: "Error saving result", details: error.message });
   }
@@ -72,7 +72,7 @@ export async function storeResult(req, res) {
 export async function dropResults(req, res) {
   try {
     const result = await Results.deleteMany();
-    res.status(200).json({ msg: "Results deleted successfully!", deletedCount: result.deletedCount });
+    res.status(200).json({ message : "Results deleted successfully!", deletedCount: result.deletedCount });
   } catch (error) {
     res.status(500).json({ error: "Error deleting results", details: error.message });
   }
@@ -81,13 +81,13 @@ export async function dropResults(req, res) {
 export async function importQuizz(req, res) {
   try {
     if (!req.file) {
-      return res.status(400).json({ status: 400, success: false, msg: 'No file uploaded' });
+      return res.status(400).json({ status: 400, success: false, message: 'No file uploaded' });
     }
 
     const excelFile = req.file;
 
     if (excelFile.mimetype !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-      return res.status(400).json({ status: 400, success: false, msg: 'Invalid file type. Please upload an .xlsx file.' });
+      return res.status(400).json({ status: 400, success: false, message : 'Invalid file type. Please upload an .xlsx file.' });
     }
 
     const workbook = XLSX.read(excelFile.buffer);
@@ -112,9 +112,9 @@ export async function importQuizz(req, res) {
       await question.save();
     }
 
-    res.status(200).json({ status: 200, success: true, msg: 'File processed and data saved successfully' });
+    res.status(200).json({ status: 200, success: true, message: 'File processed and data saved successfully' });
   } catch (error) {
     console.error('Error processing file:', error.message);
-    res.status(500).json({ status: 500, success: false, msg: 'Server error: ' + error.message });
+    res.status(500).json({ status: 500, success: false, message: 'Server error: ' + error.message });
   }
 }
