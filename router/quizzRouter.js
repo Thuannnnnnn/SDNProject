@@ -13,11 +13,11 @@ quizzRouter.post("/questions", quizz.insertQuestions);
 
 quizzRouter.delete("/questions", quizz.dropQuestions);
 
-quizzRouter.get("/result",quizz.getResult)
+quizzRouter.get("/result",quizz.getResult);
 
-quizzRouter.post("/result", quizz.storeResult)
+quizzRouter.post("/result", quizz.storeResult);
 
-quizzRouter.delete("/result", quizz.dropResults)
+quizzRouter.delete("/result", quizz.dropResults);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
