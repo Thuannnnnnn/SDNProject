@@ -4,7 +4,7 @@ import {
   deleteContent,
   getAllContent,
   updateContent,
-} from "../controller/contentController.js";
+} from "../controller/content/contentController.js";
 
 const contentRouter = express.Router();
 

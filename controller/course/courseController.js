@@ -1,12 +1,7 @@
-/* eslint-disable no-const-assign */
-import Course from "../../model/courseModel.js";
-import connectDB from "../../config/connectDB.js";
-import dotenv from "dotenv";
-dotenv.config();
+import Course from "../../model/course/courseModel.js";
 
 export const getAllCourse = async (req, res) => {
   try {
-    await connectDB();
     const courses = await Course.find();
     res.status(200).json(courses);
     if (!Array.isArray(courses) || courses.length === 0) {
@@ -33,11 +28,17 @@ export const createCourse = async (req, res) => {
       });
     }
 
-    await connectDB();
     const name = await Course.findOne({ courseName });
 
     // Kiểm tra xem tên khóa học đã tồn tại chưa
     if (name && courseName.toUpperCase() === name.courseName.toUpperCase()) {
+      return res.status(400).json({ message: "Course name already exists" });
+    }
+
+    const existingCourse = await Course.findOne({ courseName });
+
+    // Kiểm tra xem tên khóa học đã tồn tại chưa
+    if (existingCourse) {
       return res.status(400).json({ message: "Course name already exists" });
     }
 
@@ -59,6 +60,7 @@ export const createCourse = async (req, res) => {
       userGenerated,
       price,
       category,
+      contents: [],
     });
 
     // Lưu vào cơ sở dữ liệu
@@ -102,7 +104,6 @@ export const updatedCourse = async (req, res) => {
       price,
       category,
     } = req.body;
-    await connectDB();
 
     const course = await Course.findOne({ courseId });
     if (!course) {
@@ -142,7 +143,6 @@ export const updatedCourse = async (req, res) => {
 export const deteleCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
-    await connectDB();
     const course = await Course.findOneAndDelete({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });

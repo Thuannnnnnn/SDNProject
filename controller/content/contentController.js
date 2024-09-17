@@ -1,13 +1,8 @@
-/* eslint-disable no-const-assign */
-import Content from "../../model/contentModel.js";
-import connectDB from "../../config/connectDB.js";
-import dotenv from "dotenv";
-import Course from "../../model/courseModel.js";
-dotenv.config();
+import Content from "../../model/content/contentModel.js";
+import Course from "../../model/course/courseModel.js";
 
 export const getAllContent = async (req, res) => {
   try {
-    await connectDB();
     const contents = await Content.find();
     res.status(200).json(contents);
     if (!Array.isArray(contents) || contents.length === 0) {
@@ -32,8 +27,6 @@ function genaretedId(ContentName, CourseId) {
 export const createContent = async (req, res) => {
   try {
     const { contentName, courseId } = req.body;
-    await connectDB();
-
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -67,9 +60,6 @@ export const createContent = async (req, res) => {
 export const updateContent = async (req, res) => {
   try {
     const { contentId, contentName, courseId } = req.body;
-    await connectDB();
-
-    // Tìm khóa học
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -111,9 +101,6 @@ export const updateContent = async (req, res) => {
 export const deleteContent = async (req, res) => {
   try {
     const { contentId, courseId } = req.body;
-    await connectDB();
-
-    // Xóa nội dung khỏi collection Content
     const deletedContent = await Content.findOneAndDelete({ contentId });
     if (!deletedContent) {
       return res.status(404).json({ message: "Content not found" });
