@@ -1,6 +1,6 @@
 /* eslint-disable no-const-assign */
-import Course from "../model/courseModel.js";
-import connectDB from "../config/connectDB.js";
+import Course from "../../model/courseModel.js";
+import connectDB from "../../config/connectDB.js";
 import dotenv from "dotenv";
 dotenv.config();
 

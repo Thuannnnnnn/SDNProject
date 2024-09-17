@@ -1,8 +1,8 @@
 /* eslint-disable no-const-assign */
-import Content from "../model/contentModel.js";
-import connectDB from "../config/connectDB.js";
+import Content from "../../model/contentModel.js";
+import connectDB from "../../config/connectDB.js";
 import dotenv from "dotenv";
-import Course from "../model/courseModel.js";
+import Course from "../../model/courseModel.js";
 dotenv.config();
 
 export const getAllContent = async (req, res) => {
