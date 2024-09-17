@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/connectDB.js";
-import userRouter from "./router/userRouter.js";
 import authRouter from "./router/authRouter.js";
 import uploadRouter from "./router/uploadRouter.js";
 import cookieParser from "cookie-parser";
@@ -25,8 +24,6 @@ app.get('/', (req, res) => {
 // app.get('/', (req, res) => {
 //   res.send("Hello");
 // });
-
-app.use("/api/user", authMiddleware, userRouter);
 app.use("/api/course", authMiddleware, courseRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);
