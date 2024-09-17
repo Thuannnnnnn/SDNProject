@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import authMiddleware from "./middleware/authMiddleware.js";
 import { quizzRouter } from "./router/quizzRouter.js";
 import { specs, swaggerUi } from "./config/swagger.js";
+import courseRouter from "./router/courseRouter.js";
 import morgan from "morgan";
 const app = express();
 const port = 8080;
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 // });
 
 app.use("/api/user", authMiddleware, userRouter);
+app.use("/api/course", authMiddleware, courseRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);
 app.use("/api/upload", uploadRouter);
