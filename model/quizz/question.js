@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const questionSchema = new Schema({
+  contentId: {
+    type: String,
+    required: true,
+  },
   question: {
     type: String,
     required: true
