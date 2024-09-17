@@ -1,49 +1,53 @@
-export default [
+// data.js
+export const questionsData = [
     {
         id: 1,
-        question : "Javascript is an _______ language",
-        options : [
+        question: "Javascript is an _______ language",
+        options: [
             'Object-Oriented',
             'Object-Based',
             'Procedural',
-        ]
+        ],
+        answer: 0
     },
     {
         id: 2,
-        question : "Following methods can be used to display data in some form using Javascript",
-        options : [
+        question: "Following methods can be used to display data in some form using Javascript",
+        options: [
             'document.write()',
             'console.log()',
             'window.alert()',
-        ]
+        ],
+        answer: 1
     },
     {
         id: 3,
-        question : "When an operator value is NULL, the typeof returned by the unary operator is:",
-        options : [
+        question: "When an operator value is NULL, the typeof returned by the unary operator is:",
+        options: [
             'Boolean',
             'Undefined',
             'Object',
-        ]
+        ],
+        answer: 2
     },
     {
         id: 4,
-        question : "What does the toString() method return?",
-        options : [
+        question: "What does the toString() method return?",
+        options: [
             'Return Object',
             'Return String',
             'Return Integer'
-        ]
+        ],
+        answer: 1
     },
     {
         id: 5,
-        question : "Which function is used to serialize an object into a JSON string?",
-        options : [
+        question: "Which function is used to serialize an object into a JSON string?",
+        options: [
             'stringify()',
             'parse()',
             'convert()',
-        ]
+        ],
+        answer: 0
     }
 ];
-
-export const answers = [0, 1, 2, 1, 0];

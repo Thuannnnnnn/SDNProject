@@ -1,10 +1,29 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-const questionModel = new Schema({
-    questions: {type : Array, default: []},
-    answwers: {type: Array, default: []},
-    createAt: {type: Date, default: Date.now}
-})
+const { Schema } = mongoose;
 
-export default mongoose.model('Question', questionModel);
+const questionSchema = new Schema({
+    question: {
+        type: String,
+        required: true
+    },
+    options: {
+        type: [String],
+        validate: {
+            validator: function(v) {
+                return v.length > 1; 
+            },
+            message: 'Options array cannot be empty'
+        },
+    },
+    answer: {
+        type: Number,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
+export default mongoose.model('Question', questionSchema);
