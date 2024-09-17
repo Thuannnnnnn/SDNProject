@@ -10,7 +10,7 @@ export const getAllCourse = async (req, res) => {
     const courses = await Course.find();
     res.status(200).json(courses);
     if (!Array.isArray(courses) || courses.length === 0) {
-      return res.status(404).json({ message: "No users found" });
+      return res.status(404).json({ message: "No courses found" });
     }
     res.json(courses);
   } catch (error) {
@@ -41,7 +41,7 @@ export const createCourse = async (req, res) => {
       return res.status(400).json({ message: "Course name already exists" });
     }
 
-    if(isNumber(price) == false) {
+    if (isNumber(price) == false) {
       return res.status(500).json({ message: "price must number" });
     }
 
@@ -108,7 +108,7 @@ export const updatedCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-    if(!isNumber(price)) {
+    if (!isNumber(price)) {
       return res.status(500).json({ message: "price must number" });
     }
 

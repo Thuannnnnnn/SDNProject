@@ -7,6 +7,7 @@ import courseRouter from "./router/courseRouter.js";
 import cookieParser from "cookie-parser";
 import authMiddleware from "./middleware/authMiddleware.js";
 import { specs, swaggerUi } from "./config/swagger.js";
+import contentRouter from "./router/contentRouter.js";
 const app = express();
 const port = 8080;
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 
 app.use("/api/user", authMiddleware, userRouter);
 app.use("/api/course", authMiddleware, courseRouter);
+app.use("/api/content", authMiddleware, contentRouter);
 app.use("/api/auth", authRouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
