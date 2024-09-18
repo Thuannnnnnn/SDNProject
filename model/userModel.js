@@ -20,12 +20,13 @@ const users= new mongoose.Schema({
   },
   gender : {
     type : String,
-    required : true,
   },
   phoneNumber:{
     type : String,
-    required : true,
   },
+  // uid: {
+  //   type: String,
+  // }
 });
 
 
