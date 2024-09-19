@@ -19,10 +19,10 @@ function isNumber(value) {
 
 export const createCourse = async (req, res) => {
   try {
-    const { courseName, docLink, posterLink, userGenerated, price, category } =
+    const { courseName, VideoIntroLink, posterLink, userGenerated, price, category } =
       req.body;
     // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!courseName || !docLink || !posterLink || !category) {
+    if (!courseName || !VideoIntroLink || !posterLink || !category) {
       return res.status(400).json({
         message: "Missing required fields",
       });
@@ -54,7 +54,7 @@ export const createCourse = async (req, res) => {
     const newCourse = new Course({
       courseId,
       courseName,
-      docLink,
+      VideoIntroLink,
       posterLink,
       createDate,
       userGenerated,
@@ -98,7 +98,7 @@ export const updatedCourse = async (req, res) => {
     const {
       courseId,
       courseName,
-      docLink,
+      VideoIntroLink,
       posterLink,
       userGenerated,
       price,
@@ -119,7 +119,7 @@ export const updatedCourse = async (req, res) => {
 
     course.courseId = genaretedId(courseName, category);
     course.courseName = courseName || course.courseName;
-    course.docLink = docLink || course.docLink;
+    course.VideoIntroLink = VideoIntroLink || course.VideoIntroLink;
     course.posterLink = posterLink || course.posterLink;
     course.createDate = date;
     course.userGenerated = userGenerated || course.userGenerated;

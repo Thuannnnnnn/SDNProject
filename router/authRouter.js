@@ -1,4 +1,4 @@
-import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changPWUser} from "../controller/auth/authController.js";
+import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changPWUser, loginAdmin} from "../controller/auth/authController.js";
 import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 
@@ -97,4 +97,43 @@ authRouter.post("/changPWUser",authMiddleware,changPWUser);
  *         description: Internal server error
  */
 authRouter.post("/login/withGoogle", loginWithGoogle);
+/**
+ * @swagger
+ * /api/auth/login/admin:
+ *   post:
+ *     summary: User login with base credentials
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: username
+ *                 example: admin@admin.admin
+ *               name:
+ *                 type: string
+ *                 description: User password
+ *                 example: admin
+ *     responses:
+ *       200:
+ *         description: Successfully logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: Authentication token
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       401:
+ *         description: Unauthorized, invalid credentials
+ *       500:
+ *         description: Internal server error
+ */
+authRouter.post("/login/admin", loginAdmin);
 export default authRouter;

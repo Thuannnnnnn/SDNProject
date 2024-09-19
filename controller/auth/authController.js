@@ -26,13 +26,11 @@ export const loginWithGoogle = async (req, res) => {
     const userWithoutPassword = { ...user._doc };
     delete userWithoutPassword.password;
 
-    return res
-      .status(200)
-      .json({
-        message: "Login successful",
-        user: userWithoutPassword,
-        jwtToken,
-      });
+    return res.status(200).json({
+      message: "Login successful",
+      user: userWithoutPassword,
+      jwtToken,
+    });
   } catch (error) {
     if (error.code == "auth/argument-error") {
       return res.status(400).json({ message: "Invalid token" });
@@ -40,6 +38,30 @@ export const loginWithGoogle = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Internal server error change test" });
+  }
+};
+
+export const loginAdmin = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (
+      username == process.env.ADMIN_USERNAME &&
+      password == process.env.ADMIN_PASSWORD
+    ) {
+      const token = encode(username, "admin");
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 2 * 60 * 60 * 1000,
+      });
+      return res.status(200).json({
+        message: "Login successful",
+        token,
+      });
+    }
+    return res.status(401).json({ message: "Invalid password" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -62,7 +84,6 @@ export const login = async (req, res) => {
       httpOnly: true,
       maxAge: 2 * 60 * 60 * 1000,
     });
-
     const userWithoutPassword = { ...user._doc };
     delete userWithoutPassword.password;
 
@@ -227,11 +248,9 @@ export const sendOtpRegister = async (req, res) => {
 
     const existingUser = await User.findOne({ email }).select("name");
     if (existingUser) {
-      return res
-        .status(400)
-        .json({
-          message: "Email is already registered. Please try logging in.",
-        });
+      return res.status(400).json({
+        message: "Email is already registered. Please try logging in.",
+      });
     }
 
     const randomNumber = Math.floor(Math.random() * 10000)
@@ -281,23 +300,25 @@ The GR5 Team
   }
 };
 
-export const changPWUser = async (req, res) =>{
-  try{
-    const {email,oldPW, newPW, reNewPW} = req.body;
+export const changPWUser = async (req, res) => {
+  try {
+    const { email, oldPW, newPW, reNewPW } = req.body;
     const user = await User.findOne({ email }).select("password");
-    if(!user){
-      return res.status(404).json({message: "User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    if(user.password !== hashString(oldPW)){
-      return res.status(400).json({message: "Password invalid"});
+    if (user.password !== hashString(oldPW)) {
+      return res.status(400).json({ message: "Password invalid" });
     }
-    if(hashString(newPW) !== hashString(reNewPW)){
-      return res.status(400).json({message: "New Password and reNew Password not same"});
+    if (hashString(newPW) !== hashString(reNewPW)) {
+      return res
+        .status(400)
+        .json({ message: "New Password and reNew Password not same" });
     }
     user.password = hashString(newPW);
     user.save();
-    res.status(200).json({message: "Password updated"});
-  }catch(error){
-    res.status(500).json({message: error});
+    res.status(200).json({ message: "Password updated" });
+  } catch (error) {
+    res.status(500).json({ message: error });
   }
 };

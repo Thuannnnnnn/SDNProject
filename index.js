@@ -14,13 +14,18 @@ const app = express();
 const port = 8080;
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 app.use(cookieParser());
-app.use(morgan('combined'));
+app.use(morgan("combined"));
 connectDB();
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 // app.get('/', (req, res) => {
 //   res.send("Hello");

@@ -11,7 +11,7 @@ const courseSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  docLink: {
+  VideoIntroLink: {
     type: String,
     required: true,
   },
