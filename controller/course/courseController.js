@@ -18,17 +18,11 @@ function isNumber(value) {
 
 export const createCourse = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const { courseName, VideoIntroLink, posterLink, userGenerated, price, category } =
-      req.body;
-    // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!courseName || !VideoIntroLink || !posterLink || !category) {
-=======
     const { courseName, description, posterLink, userGenerated, videoIntro, price, category } =
       req.body;
     // Kiểm tra nếu thiếu các trường bắt buộc
     if (!courseName || !description || !posterLink || !category) {
->>>>>>> cdd06baad8a5a84dce0ac69c70989bb47e780b4d
+
       return res.status(400).json({
         message: "Missing required fields",
       });
@@ -60,11 +54,7 @@ export const createCourse = async (req, res) => {
     const newCourse = new Course({
       courseId,
       courseName,
-<<<<<<< HEAD
-      VideoIntroLink,
-=======
       description,
->>>>>>> cdd06baad8a5a84dce0ac69c70989bb47e780b4d
       posterLink,
       createDate,
       userGenerated,
@@ -108,11 +98,7 @@ export const updatedCourse = async (req, res) => {
     const {
       courseId,
       courseName,
-<<<<<<< HEAD
-      VideoIntroLink,
-=======
       description,
->>>>>>> cdd06baad8a5a84dce0ac69c70989bb47e780b4d
       posterLink,
       userGenerated,
       videoIntro,
@@ -133,11 +119,7 @@ export const updatedCourse = async (req, res) => {
 
     course.courseId = genaretedId(courseName, category);
     course.courseName = courseName || course.courseName;
-<<<<<<< HEAD
-    course.VideoIntroLink = VideoIntroLink || course.VideoIntroLink;
-=======
     course.description = description || course.description;
->>>>>>> cdd06baad8a5a84dce0ac69c70989bb47e780b4d
     course.posterLink = posterLink || course.posterLink;
     course.createDate = date;
     course.userGenerated = userGenerated || course.userGenerated;

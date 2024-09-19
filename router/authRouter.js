@@ -1,4 +1,4 @@
-import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changPWUser, loginAdmin} from "../controller/auth/authController.js";
+import {login, validateOtp, changePW, sendOtpForgotPW, register, sendOtpRegister, loginWithGoogle, changePWUser, loginAdmin} from "../controller/auth/authController.js";
 import express from "express";
 // import authMiddleware from "../middleware/authMiddleware.js";
 
