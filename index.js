@@ -10,6 +10,7 @@ import { specs, swaggerUi } from "./config/swagger.js";
 import courseRouter from "./router/courseRouter.js";
 import morgan from "morgan";
 import contentRouter from "./router/contentRouter.js";
+import examRouter from "./router/examRouter.js"; // Import examRouter
 const app = express();
 const port = 8080;
 
@@ -30,6 +31,7 @@ app.use("/api/content", authMiddleware, contentRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/exam", examRouter); // Tích hợp examRouter
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
