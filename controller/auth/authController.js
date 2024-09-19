@@ -300,7 +300,7 @@ The GR5 Team
   }
 };
 
-export const changPWUser = async (req, res) => {
+export const changePWUser = async (req, res) => {
   try {
     const { email, oldPW, newPW, reNewPW } = req.body;
     const user = await User.findOne({ email }).select("password");
