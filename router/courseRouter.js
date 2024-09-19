@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCourse, deteleCourse, getAllCourse, updatedCourse } from '../controller/course/courseController.js';
+import { createCourse, deleteCourse, getAllCourse, updatedCourse } from '../controller/course/courseController.js';
 
 const courseRouter = express.Router();
 
@@ -142,6 +142,6 @@ courseRouter.get('/getAll', getAllCourse);
  *       500:
  *         description: Internal server error
  */
-courseRouter.delete('/detele', deteleCourse);
+courseRouter.delete('/delete/:courseId', deleteCourse);
 
 export default courseRouter;

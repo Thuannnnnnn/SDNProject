@@ -3,11 +3,10 @@ import Course from "../../model/course/courseModel.js";
 export const getAllCourse = async (req, res) => {
   try {
     const courses = await Course.find();
-    res.status(200).json(courses);
     if (!Array.isArray(courses) || courses.length === 0) {
       return res.status(404).json({ message: "No courses found" });
     }
-    res.json(courses);
+    res.status(200).json(courses);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -19,10 +18,10 @@ function isNumber(value) {
 
 export const createCourse = async (req, res) => {
   try {
-    const { courseName, docLink, posterLink, userGenerated, price, category } =
+    const { courseName, description, posterLink, userGenerated, videoIntro, price, category } =
       req.body;
     // Kiểm tra nếu thiếu các trường bắt buộc
-    if (!courseName || !docLink || !posterLink || !category) {
+    if (!courseName || !description || !posterLink || !category) {
       return res.status(400).json({
         message: "Missing required fields",
       });
@@ -54,15 +53,15 @@ export const createCourse = async (req, res) => {
     const newCourse = new Course({
       courseId,
       courseName,
-      docLink,
+      description,
       posterLink,
       createDate,
       userGenerated,
+      videoIntro,
       price,
       category,
       contents: [],
     });
-
     // Lưu vào cơ sở dữ liệu
     const savedCourse = await newCourse.save();
 
@@ -98,13 +97,13 @@ export const updatedCourse = async (req, res) => {
     const {
       courseId,
       courseName,
-      docLink,
+      description,
       posterLink,
       userGenerated,
+      videoIntro,
       price,
       category,
     } = req.body;
-
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -119,10 +118,11 @@ export const updatedCourse = async (req, res) => {
 
     course.courseId = genaretedId(courseName, category);
     course.courseName = courseName || course.courseName;
-    course.docLink = docLink || course.docLink;
+    course.description = description || course.description;
     course.posterLink = posterLink || course.posterLink;
     course.createDate = date;
     course.userGenerated = userGenerated || course.userGenerated;
+    course.videoIntro = videoIntro || course.videoIntro;
     course.price = price || course.price;
     course.category = category || course.category;
 
@@ -140,15 +140,13 @@ export const updatedCourse = async (req, res) => {
   }
 };
 
-export const deteleCourse = async (req, res) => {
+export const deleteCourse = async (req, res) => {
   try {
-    const { courseId } = req.body;
+    const  courseId  = req.params.courseId;
     const course = await Course.findOneAndDelete({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-
-    // Gửi phản hồi thành công
     res.status(200).json({ message: "deteled course successfull!" });
   } catch (error) {
     res

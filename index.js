@@ -16,6 +16,7 @@ const port = 8080;
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('combined'));
 connectDB();
@@ -25,7 +26,7 @@ app.get('/', (req, res) => {
 // app.get('/', (req, res) => {
 //   res.send("Hello");
 // });
-app.use("/api/course", authMiddleware, courseRouter);
+app.use("/api/course", courseRouter);
 app.use("/api/content", authMiddleware, contentRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);

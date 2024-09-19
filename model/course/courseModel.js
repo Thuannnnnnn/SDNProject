@@ -11,7 +11,7 @@ const courseSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  docLink: {
+  description: {
     type: String,
     required: true,
   },
@@ -20,6 +20,10 @@ const courseSchema = new mongoose.Schema({
     required: true,
   },
   createDate: {
+    type: String,
+    required: true,
+  },
+  videoIntro: {
     type: String,
     required: true,
   },
