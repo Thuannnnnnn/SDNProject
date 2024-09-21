@@ -114,7 +114,7 @@ authRouter.post("/login/withGoogle", loginWithGoogle);
  *                 type: string
  *                 description: username
  *                 example: admin@admin.admin
- *               name:
+ *               password:
  *                 type: string
  *                 description: User password
  *                 example: admin
