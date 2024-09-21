@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Định nghĩa schema
-const ContentSchema = new mongoose.Schema({
+const Content = new mongoose.Schema({
   contentId: {
     type: String,
     required: true,
@@ -12,18 +12,21 @@ const ContentSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  courseId: {
+  contentType: {
     type: String,
     required: true,
+    unique: true,
+  },
+  contentRef: {
+    type: String,
+    required: true,
+    unique: true,
   },
   createDate: {
     type: String,
     required: true,
   },
-});
-
-// Tạo model từ schema
-const Content = mongoose.model('Content', ContentSchema);
+}, { _id: false });
 
 // Xuất model để sử dụng ở các nơi khác
 export default Content;

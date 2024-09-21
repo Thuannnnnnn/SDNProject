@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import contents from "../content/contentModel.js";
 
 const courseSchema = new mongoose.Schema({
   courseId: {
@@ -39,7 +40,7 @@ const courseSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
-  contents: [{ type: String, ref: "Content" }],
+  contents: [contents],
 });
 
 const Course = mongoose.model("Courses", courseSchema);

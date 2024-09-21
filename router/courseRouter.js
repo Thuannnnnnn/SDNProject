@@ -1,5 +1,10 @@
-import express from 'express';
-import { createCourse, deleteCourse, getAllCourse, updatedCourse } from '../controller/course/courseController.js';
+import express from "express";
+import {
+  createCourse,
+  deleteCourse,
+  getAllCourse,
+  updatedCourse,
+} from "../controller/course/courseController.js";
 
 const courseRouter = express.Router();
 
@@ -27,12 +32,15 @@ const courseRouter = express.Router();
  *               courseName:
  *                 type: string
  *                 example: Introduction to Programming
- *               docLink:
+ *               description:
  *                 type: string
- *                 example: http://example.com/document.pdf
+ *                 example: A comprehensive guide to programming.
  *               posterLink:
  *                 type: string
  *                 example: http://example.com/poster.png
+ *               videoIntro:
+ *                 type: string
+ *                 example: http://example.com/video.mp4
  *               userGenerated:
  *                 type: string
  *                 example: "64e78961234a567bc9def012"
@@ -50,8 +58,7 @@ const courseRouter = express.Router();
  *       500:
  *         description: Internal server error
  */
-courseRouter.post('/createCourse', createCourse);
-
+courseRouter.post("/createCourse", createCourse);
 
 /**
  * @swagger
@@ -69,19 +76,22 @@ courseRouter.post('/createCourse', createCourse);
  *             properties:
  *               courseId:
  *                 type: string
- *                 example: 64e78961234a567bc9def012
+ *                 example: course_1
  *               courseName:
  *                 type: string
  *                 example: Updated Course Name
- *               docLink:
+ *               description:
  *                 type: string
- *                 example: http://example.com/updated-doc.pdf
+ *                 example: Updated description for the course.
  *               posterLink:
  *                 type: string
  *                 example: http://example.com/updated-poster.png
+ *               videoIntro:
+ *                 type: string
+ *                 example: http://example.com/updated-video.mp4
  *               userGenerated:
  *                 type: string
- *                 example: 64e78961234a567bc9def012
+ *                 example: "64e78961234a567bc9def012"
  *               price:
  *                 type: number
  *                 example: 79.99
@@ -98,7 +108,7 @@ courseRouter.post('/createCourse', createCourse);
  *       500:
  *         description: Internal server error
  */
-courseRouter.put('/updateCourse', updatedCourse);
+courseRouter.put("/updateCourse", updatedCourse);
 
 /**
  * @swagger
@@ -115,25 +125,23 @@ courseRouter.put('/updateCourse', updatedCourse);
  *       500:
  *         description: Internal server error
  */
-courseRouter.get('/getAll', getAllCourse);
+courseRouter.get("/getAll", getAllCourse);
 
 /**
  * @swagger
- * /api/course/detele:
+ * /api/course/delete/{courseId}:
  *   delete:
  *     tags: [Courses]
  *     summary: Delete a course
  *     description: Delete a course by providing its courseId.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               courseId:
- *                 type: string
- *                 example: 64e78961234a567bc9def012
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course to delete
+ *         schema:
+ *           type: string
+ *           example: course_1
  *     responses:
  *       200:
  *         description: Course deleted successfully
@@ -142,6 +150,6 @@ courseRouter.get('/getAll', getAllCourse);
  *       500:
  *         description: Internal server error
  */
-courseRouter.delete('/delete/:courseId', deleteCourse);
+courseRouter.delete("/delete/:courseId", deleteCourse);
 
 export default courseRouter;

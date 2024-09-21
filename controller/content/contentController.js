@@ -3,46 +3,61 @@ import Course from "../../model/course/courseModel.js";
 
 export const getAllContent = async (req, res) => {
   try {
-    const contents = await Content.find();
-    res.status(200).json(contents);
-    if (!Array.isArray(contents) || contents.length === 0) {
+    // Lấy tất cả khóa học và nội dung liên quan
+    const courses = await Course.find().populate('contents'); // Nếu bạn cần populate
+
+    // Kiểm tra xem có khóa học nào không
+    if (!Array.isArray(courses) || courses.length === 0) {
+      return res.status(404).json({ message: "No courses found" });
+    }
+
+    // Trích xuất nội dung từ các khóa học
+    const allContents = courses.flatMap(course => course.contents);
+
+    if (!Array.isArray(allContents) || allContents.length === 0) {
       return res.status(404).json({ message: "No contents found" });
     }
-    res.json(contents);
+
+    res.status(200).json(allContents);
+
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
-function genaretedId(ContentName, CourseId) {
-  let firstChars = ContentName.split(" ")
+
+function generateId(contentName, courseId) {
+  const firstChars = contentName
+    .split(" ")
     .map((word) => word[0])
     .join("");
-
-  const courseIdUpdated = firstChars + CourseId;
-
-  return courseIdUpdated;
+  return firstChars + courseId;
 }
 
 export const createContent = async (req, res) => {
   try {
-    const { contentName, courseId } = req.body;
+    const { contentName, contentType, contentRef, courseId } = req.body;
+
+    // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
     const createDate = new Date().toISOString().split("T")[0];
-    const contentId = genaretedId(contentName, courseId);
-    const newContent = new Content({
+    const contentId = generateId(contentName, courseId);
+
+    // Tạo mới nội dung với đầy đủ thông tin
+    const newContent = {
       contentId,
       contentName,
-      courseId,
+      contentType,
+      contentRef,
       createDate,
-    });
+    };
 
-    await newContent.save();
-    course.contents.push(newContent.contentId);
+    // Cập nhật khóa học
+    course.contents.push(newContent);
     await course.save();
 
     res.status(201).json({
@@ -59,36 +74,34 @@ export const createContent = async (req, res) => {
 
 export const updateContent = async (req, res) => {
   try {
-    const { contentId, contentName, courseId } = req.body;
+    const { contentId, contentName, courseId, contentRef, contentType } =
+      req.body;
+
+    // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    // Tìm nội dung
-    const content = await Content.findOne({ contentId });
+    // Tìm nội dung trong mảng contents
+    const content = course.contents.find(
+      (item) => item.contentId === contentId
+    );
     if (!content) {
       return res.status(404).json({ message: "Content not found" });
     }
 
     // Cập nhật nội dung
-    content.contentId = genaretedId(contentName, courseId);
     content.contentName = contentName;
+    content.contentRef = contentRef;
+    content.contentType = contentType;
     content.createDate = new Date().toISOString().split("T")[0];
-    await content.save();
 
-    // Cập nhật nội dung trong khóa học
-    const contentIndex = course.contents.findIndex(
-      (c) => c.contentId === contentId
-    );
-    if (contentIndex !== -1) {
-      course.contents[contentIndex] = content;
-      await course.save();
-    }
+    await course.save();
 
     res.status(200).json({
       message: "Content updated successfully!",
-      content: content,
+      content,
     });
   } catch (error) {
     res.status(500).json({
@@ -101,21 +114,24 @@ export const updateContent = async (req, res) => {
 export const deleteContent = async (req, res) => {
   try {
     const { contentId, courseId } = req.body;
-    const deletedContent = await Content.findOneAndDelete({ contentId });
-    if (!deletedContent) {
+
+    // Kiểm tra khóa học có tồn tại không
+    const course = await Course.findOne({ courseId });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    // Tìm và xóa nội dung
+    const contentIndex = course.contents.findIndex(
+      (item) => item.contentId === contentId
+    );
+    if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
 
-    // Cập nhật khóa học để loại bỏ nội dung đã xóa
-    const updatedCourse = await Course.findOneAndUpdate(
-      { courseId },
-      { $pull: { contents: { contentId } } },
-      { new: true }
-    );
-
-    if (!updatedCourse) {
-      return res.status(404).json({ message: "Course not found" });
-    }
+    // Loại bỏ nội dung
+    course.contents.splice(contentIndex, 1);
+    await course.save();
 
     res.status(200).json({ message: "Content deleted successfully!" });
   } catch (error) {

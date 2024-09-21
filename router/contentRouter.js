@@ -32,6 +32,12 @@ const contentRouter = express.Router();
  *               contentName:
  *                 type: string
  *                 example: "Introduction to MongoDB"
+ *               contentType:
+ *                 type: string
+ *                 example: "Video"
+ *               contentRef:
+ *                 type: string
+ *                 example: "http://example.com/content"
  *               courseId:
  *                 type: string
  *                 example: "course123"
@@ -59,12 +65,15 @@ contentRouter.post("/createContent", createContent);
  *           schema:
  *             type: object
  *             properties:
- *               contentId:
- *                 type: string
- *                 example: "content123"
  *               contentName:
  *                 type: string
  *                 example: "Updated Content Name"
+ *               contentType:
+ *                 type: string
+ *                 example: "Updated Type"
+ *               contentRef:
+ *                 type: string
+ *                 example: "http://example.com/updated-content"
  *               courseId:
  *                 type: string
  *                 example: "course123"
@@ -87,6 +96,25 @@ contentRouter.put("/updateContent", updateContent);
  *     responses:
  *       200:
  *         description: List of contents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   contentName:
+ *                     type: string
+ *                     example: "Introduction to MongoDB"
+ *                   contentType:
+ *                     type: string
+ *                     example: "Video"
+ *                   contentRef:
+ *                     type: string
+ *                     example: "http://example.com/content"
+ *                   courseId:
+ *                     type: string
+ *                     example: "course123"
  *       404:
  *         description: No contents found
  */
@@ -94,7 +122,7 @@ contentRouter.get("/getAllContent", getAllContent);
 
 /**
  * @swagger
- * /api/content/deteleContent:
+ * /api/content/deleteContent:
  *   delete:
  *     tags: [Content]
  *     summary: Delete content
@@ -109,6 +137,9 @@ contentRouter.get("/getAllContent", getAllContent);
  *               contentId:
  *                 type: string
  *                 example: "content123"
+ *               courseId:
+ *                 type: string
+ *                 example: "course123"
  *     responses:
  *       200:
  *         description: Content deleted successfully
@@ -117,6 +148,6 @@ contentRouter.get("/getAllContent", getAllContent);
  *       500:
  *         description: Error deleting content
  */
-contentRouter.delete("/deteleContent", deleteContent);
+contentRouter.delete("/deleteContent", deleteContent);
 
 export default contentRouter;
