@@ -1,30 +1,8 @@
-import Content from "../../model/content/contentModel.js";
 import Course from "../../model/course/courseModel.js";
-
-export const getAllContent = async (req, res) => {
-  try {
-    // Lấy tất cả khóa học và nội dung liên quan
-    const courses = await Course.find().populate('contents'); // Nếu bạn cần populate
-
-    // Kiểm tra xem có khóa học nào không
-    if (!Array.isArray(courses) || courses.length === 0) {
-      return res.status(404).json({ message: "No courses found" });
-    }
-
-    // Trích xuất nội dung từ các khóa học
-    const allContents = courses.flatMap(course => course.contents);
-
-    if (!Array.isArray(allContents) || allContents.length === 0) {
-      return res.status(404).json({ message: "No contents found" });
-    }
-
-    res.status(200).json(allContents);
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
+import Docs from "../../model/docs/docsModel.js";
+import Exam from "../../model/exam/exam.js";
+import Question from "../../model/quizz/question.js";
+import Video from "../../model/video/videoModel.js";
 
 function generateId(contentName, courseId) {
   const firstChars = contentName
@@ -34,29 +12,132 @@ function generateId(contentName, courseId) {
   return firstChars + courseId;
 }
 
+async function getVideoRef(contentRef) {
+  const video = await Video.findById({ _id: contentRef });
+  if (video) {
+    return video._id;
+  }
+  return { status: "not found" };
+}
+
+async function getExamRef(contentRef) {
+  const exam = await Exam.findById({ _id: contentRef });
+  if (exam) {
+    return exam._id;
+  }
+  return { status: "not found" };
+}
+
+async function getDocsRef(contentRef) {
+  const docs = await Docs.findById({ _id: contentRef });
+  if (docs) {
+    return docs._id;
+  }
+  return { status: "not found" };
+}
+
+async function getQuizRef(contentRef) {
+  const quiz = await Question.findById({ _id: contentRef });
+  if (quiz) {
+    return quiz._id;
+  }
+  return { status: "not found" };
+}
+
+export const getContentById = async (req, res) => {
+  try {
+    const { contentId } = req.params;
+
+    const course = await Course.findOne({ "contents.contentId": contentId });
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    const content = course.contents.find(item => item.contentId === contentId);
+    if (!content) {
+      return res.status(404).json({ message: "Content not found" });
+    }
+
+    let populatedContent;
+
+    if (content.contentType === "videos") {
+      populatedContent = await Video.findById(content.contentRef);
+    } else if (content.contentType === "exams") {
+      populatedContent = await Exam.findById(content.contentRef);
+    } else if (content.contentType === "docs") {
+      populatedContent = await Docs.findById(content.contentRef);
+    } else if (content.contentType === "questions") {
+      populatedContent = await Question.findById(content.contentRef);
+    }
+
+    if (!populatedContent) {
+      return res.status(404).json({ message: "Content reference not found" });
+    }
+
+    res.status(200).json({
+      content: {
+        ...content.toObject(),
+        contentRef: populatedContent,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 export const createContent = async (req, res) => {
   try {
     const { contentName, contentType, contentRef, courseId } = req.body;
 
-    // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    const createDate = new Date().toISOString().split("T")[0];
+    // Kiểm tra trùng lặp contentId
     const contentId = generateId(contentName, courseId);
+    const isContentIdExists = course.contents.some(
+      (content) => content.contentId === contentId
+    );
+    if (isContentIdExists) {
+      return res.status(400).json({ message: "Content ID already exists" });
+    }
 
-    // Tạo mới nội dung với đầy đủ thông tin
+    // Kiểm tra trùng lặp contentRef
+    const isContentRefExists = course.contents.some(
+      (content) => content.contentRef.toString() === contentRef
+    );
+    if (isContentRefExists) {
+      return res
+        .status(400)
+        .json({ message: "Content reference already exists" });
+    }
+
+    // Kiểm tra tham chiếu
+    let refResult;
+    if (contentType === "videos") {
+      refResult = await getVideoRef(contentRef);
+    } else if (contentType === "exams") {
+      refResult = await getExamRef(contentRef);
+    } else if (contentType === "docs") {
+      refResult = await getDocsRef(contentRef);
+    } else {
+      refResult = await getQuizRef(contentRef);
+    }
+
+    if (refResult.status === "not found") {
+      return res.status(404).json({ message: "Reference not found" });
+    }
+
     const newContent = {
       contentId,
       contentName,
       contentType,
-      contentRef,
-      createDate,
+      contentRef: refResult, // Sử dụng refResult
     };
 
-    // Cập nhật khóa học
     course.contents.push(newContent);
     await course.save();
 
@@ -77,13 +158,11 @@ export const updateContent = async (req, res) => {
     const { contentId, contentName, courseId, contentRef, contentType } =
       req.body;
 
-    // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    // Tìm nội dung trong mảng contents
     const content = course.contents.find(
       (item) => item.contentId === contentId
     );
@@ -91,9 +170,37 @@ export const updateContent = async (req, res) => {
       return res.status(404).json({ message: "Content not found" });
     }
 
+    // Kiểm tra trùng lặp contentRef
+    const isContentRefExists = course.contents.some(
+      (item) =>
+        item.contentRef.toString() === contentRef &&
+        item.contentId !== contentId
+    );
+    if (isContentRefExists) {
+      return res
+        .status(400)
+        .json({ message: "Content reference already exists" });
+    }
+
+    // Xác thực tham chiếu
+    let refResult;
+    if (contentType === "videos") {
+      refResult = await Video.findById(contentRef);
+    } else if (contentType === "exams") {
+      refResult = await Exam.findById(contentRef);
+    } else if (contentType === "docs") {
+      refResult = await Docs.findById(contentRef);
+    } else {
+      refResult = await Question.findById(contentRef);
+    }
+
+    if (!refResult) {
+      return res.status(404).json({ message: "Reference not found" });
+    }
+
     // Cập nhật nội dung
     content.contentName = contentName;
-    content.contentRef = contentRef;
+    content.contentRef = refResult;
     content.contentType = contentType;
     content.createDate = new Date().toISOString().split("T")[0];
 

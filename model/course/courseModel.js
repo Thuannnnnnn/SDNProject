@@ -1,30 +1,6 @@
 import mongoose from "mongoose";
+import Content from "../content/contentModel.js";
 
-const contentSchema = new mongoose.Schema({
-  contentId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  contentName: {
-    type: String,
-    required: true,
-  },
-  contentType: {
-    type: String,
-    required: true,
-    enum: ['videos', 'Docs', 'Question', 'Exam'], // Xác định loại bảng
-  },
-  contentRef: {
-    type: mongoose.Schema.Types.ObjectId,  // Sử dụng ObjectId để tham chiếu
-    refPath: 'contentType',  // Dựa trên contentType để chọn bảng
-    required: true,
-  },
-  createDate: {
-    type: Date,
-    default: Date.now,
-  },
-}, { _id: false });  // _id: false để không tạo id cho mỗi phần tử của contents
 
 const courseSchema = new mongoose.Schema({
   courseId: {
@@ -65,7 +41,7 @@ const courseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  contents: [contentSchema],  // Sử dụng schema riêng cho nội dung của từng khóa học
+  contents: [Content],
 });
 
 const Course = mongoose.model("Course", courseSchema);

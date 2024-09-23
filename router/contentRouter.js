@@ -2,7 +2,7 @@ import express from "express";
 import {
   createContent,
   deleteContent,
-  getAllContent,
+  getContentById,
   updateContent,
 } from "../controller/content/contentController.js";
 
@@ -21,6 +21,7 @@ const contentRouter = express.Router();
  *   post:
  *     tags: [Content]
  *     summary: Create new content
+ *     description: Add new content to the course
  *     requestBody:
  *       description: Content object that needs to be added
  *       required: true
@@ -34,7 +35,8 @@ const contentRouter = express.Router();
  *                 example: "Introduction to MongoDB"
  *               contentType:
  *                 type: string
- *                 example: "Video"
+ *                 enum: ["videos", "exams", "docs", "questions"]
+ *                 example: "videos"
  *               contentRef:
  *                 type: string
  *                 example: "http://example.com/content"
@@ -57,6 +59,7 @@ contentRouter.post("/createContent", createContent);
  *   put:
  *     tags: [Content]
  *     summary: Update content
+ *     description: Update existing content in the course
  *     requestBody:
  *       description: Content object that needs to be updated
  *       required: true
@@ -65,12 +68,16 @@ contentRouter.post("/createContent", createContent);
  *           schema:
  *             type: object
  *             properties:
+ *               contentId:
+ *                 type: string
+ *                 example: "content123"
  *               contentName:
  *                 type: string
  *                 example: "Updated Content Name"
  *               contentType:
  *                 type: string
- *                 example: "Updated Type"
+ *                 enum: ["videos", "exams", "docs", "questions"]
+ *                 example: "docs"
  *               contentRef:
  *                 type: string
  *                 example: "http://example.com/updated-content"
@@ -83,42 +90,51 @@ contentRouter.post("/createContent", createContent);
  *       400:
  *         description: Error updating content
  *       404:
- *         description: Content not found
+ *         description: Content or course not found
  */
 contentRouter.put("/updateContent", updateContent);
 
 /**
  * @swagger
- * /api/content/getAllContent:
+ * /api/content/getContentById/{contentId}:
  *   get:
+ *     summary: Lấy nội dung theo ID
  *     tags: [Content]
- *     summary: Retrieve all contents
+ *     parameters:
+ *       - in: path
+ *         name: contentId
+ *         required: true
+ *         description: ID của nội dung
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: List of contents
+ *         description: Nội dung được lấy thành công
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   contentName:
- *                     type: string
- *                     example: "Introduction to MongoDB"
- *                   contentType:
- *                     type: string
- *                     example: "Video"
- *                   contentRef:
- *                     type: string
- *                     example: "http://example.com/content"
- *                   courseId:
- *                     type: string
- *                     example: "course123"
+ *               type: object
+ *               properties:
+ *                 content:
+ *                   type: object
+ *                   properties:
+ *                     contentId:
+ *                       type: string
+ *                     contentName:
+ *                       type: string
+ *                     contentType:
+ *                       type: string
+ *                     contentRef:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
  *       404:
- *         description: No contents found
+ *         description: Nội dung không tìm thấy
+ *       500:
+ *         description: Lỗi server
  */
-contentRouter.get("/getAllContent", getAllContent);
+contentRouter.get("/getContentById/:contentId", getContentById);
 
 /**
  * @swagger
@@ -126,8 +142,9 @@ contentRouter.get("/getAllContent", getAllContent);
  *   delete:
  *     tags: [Content]
  *     summary: Delete content
+ *     description: Delete content from the course
  *     requestBody:
- *       description: Content ID to be deleted
+ *       description: Content object that needs to be deleted
  *       required: true
  *       content:
  *         application/json:
@@ -144,7 +161,7 @@ contentRouter.get("/getAllContent", getAllContent);
  *       200:
  *         description: Content deleted successfully
  *       404:
- *         description: Content not found
+ *         description: Content or course not found
  *       500:
  *         description: Error deleting content
  */

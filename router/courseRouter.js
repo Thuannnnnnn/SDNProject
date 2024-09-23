@@ -2,7 +2,8 @@ import express from "express";
 import {
   createCourse,
   deleteCourse,
-  getAllCourse,
+  getAllCourses,
+  getCourseById,
   updatedCourse,
 } from "../controller/course/courseController.js";
 
@@ -125,7 +126,7 @@ courseRouter.put("/updateCourse", updatedCourse);
  *       500:
  *         description: Internal server error
  */
-courseRouter.get("/getAll", getAllCourse);
+courseRouter.get("/getAll", getAllCourses);
 
 /**
  * @swagger
@@ -152,4 +153,66 @@ courseRouter.get("/getAll", getAllCourse);
  */
 courseRouter.delete("/delete/:courseId", deleteCourse);
 
+
+/**
+ * @swagger
+ * /api/course/getById/{courseId}:
+ *   get:
+ *     tags: [Courses]
+ *     summary: Get a course by ID
+ *     description: Retrieve a course along with its contents by providing the course ID.
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         description: ID of the course to retrieve
+ *         schema:
+ *           type: string
+ *           example: course_1
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved course with contents
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 courseId:
+ *                   type: string
+ *                   example: course_1
+ *                 courseName:
+ *                   type: string
+ *                   example: Introduction to Programming
+ *                 description:
+ *                   type: string
+ *                   example: A comprehensive guide to programming.
+ *                 contents:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       contentId:
+ *                         type: string
+ *                         example: content_1
+ *                       contentName:
+ *                         type: string
+ *                         example: Video Lecture 1
+ *                       contentRef:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: 64e78961234a567bc9def012
+ *                           title:
+ *                             type: string
+ *                             example: Introduction to Video Lectures
+ *                       contentType:
+ *                         type: string
+ *                         example: videos
+ *       404:
+ *         description: Course not found
+ *       500:
+ *         description: Internal server error
+ */
+courseRouter.get("/getById/:courseId", getCourseById);
 export default courseRouter;
