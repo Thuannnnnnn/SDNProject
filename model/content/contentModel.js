@@ -1,32 +1,34 @@
 import mongoose from "mongoose";
 
 // Định nghĩa schema
-const Content = new mongoose.Schema({
-  contentId: {
-    type: String,
-    required: true,
-    unique: true,
+const Content = new mongoose.Schema(
+  {
+    contentId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    contentName: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    contentType: {
+      type: String,
+      required: true,
+      enum: ["videos", "exams", "docs", "questions"],
+    },
+    contentRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "contentType",
+      unique: true,
+    },
+    createDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
   },
-  contentName: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  contentType: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  contentRef: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  createDate: {
-    type: String,
-    required: true,
-  },
-}, { _id: false });
-
-// Xuất model để sử dụng ở các nơi khác
+  { _id: false }
+);
 export default Content;

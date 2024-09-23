@@ -29,5 +29,5 @@ const questionSchema = new Schema({
     default: Date.now
   }
 });
-
-export default mongoose.model('Question', questionSchema);
+const Question = mongoose.model('Question', questionSchema);
+export default Question;

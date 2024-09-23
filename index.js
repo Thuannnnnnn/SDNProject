@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 //   res.send("Hello");
 // });
 app.use("/api/course", courseRouter);
-app.use("/api/content", authMiddleware, contentRouter);
+app.use("/api/content", contentRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);
 app.use("/api/upload", uploadRouter);
