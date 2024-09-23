@@ -34,5 +34,8 @@
     "eslint": "^9.9.1",
     "globals": "^15.9.0"
   },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "type": "module"
 }
