@@ -11,6 +11,7 @@ import courseRouter from "./router/courseRouter.js";
 import morgan from "morgan";
 import contentRouter from "./router/contentRouter.js";
 import examRouter from "./router/examRouter.js"; // Import examRouter
+import cartRouter from "./router/cartRouter.js";
 const app = express();
 const port = 8080;
 
@@ -33,7 +34,8 @@ app.get("/", (req, res) => {
 //   res.send("Hello");
 // });
 app.use("/api/course", courseRouter);
-app.use("/api/content", authMiddleware, contentRouter);
+app.use("/api/content",contentRouter);
+app.use("/api/cart", cartRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz", quizzRouter);
 app.use("/api/upload", uploadRouter);

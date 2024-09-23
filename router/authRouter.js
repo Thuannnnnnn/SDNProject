@@ -77,8 +77,8 @@ authRouter.post("/changePWUser",changePWUser);
  *                 example: user@example.com
  *               name:
  *                 type: string
- *                 description: User password
- *                 example: password123
+ *                 description: User =Name
+ *                 example: user123
  *     responses:
  *       200:
  *         description: Successfully logged in
