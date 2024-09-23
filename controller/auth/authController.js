@@ -1,3 +1,4 @@
+import Cart from "../../model/cart/cartModel.js";
 import Otp from "../../model/otpModel.js";
 import User from "../../model/userModel.js";
 import hashString from "../../utilis/hash256.js";
@@ -16,6 +17,13 @@ export const loginWithGoogle = async (req, res) => {
         role: "Customer",
       });
       await user.save();
+
+      const newCart = Cart({
+        cartId: genaretedId(email),
+        userGenerated: email,
+        courses: [],
+      });
+      await newCart.save();
     }
     const jwtToken = encode(user.email, user.name);
     res.cookie("token", jwtToken, {
@@ -191,6 +199,10 @@ export const changePW = async (req, res) => {
   }
 };
 
+function genaretedId(email) {
+  const domain = email.split("@"); // Tách phần trước và sau dấu @
+  return `cart_${domain}`; // Tạo ID có dạng "cart_email_gmail"
+}
 export const register = async (req, res) => {
   try {
     const { name, email, password, otp } = req.body;
@@ -224,8 +236,14 @@ export const register = async (req, res) => {
       password: hashedPassword,
       role: "customer",
     });
-
     await newUser.save();
+
+    const newCart = Cart({
+      cartId: genaretedId(email),
+      userGenerated: email,
+      courses: [],
+    });
+    await newCart.save();
     await Otp.deleteOne({ email });
 
     const subject = "Welcome to GR5";
