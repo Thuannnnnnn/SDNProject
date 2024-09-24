@@ -3,7 +3,9 @@ import Docs from "../../model/docs/docsModel.js";
 import Exam from "../../model/exam/exam.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
-
+function isNumber(value) {
+  return !isNaN(value) && !isNaN(parseFloat(value));
+}
 export const getAllCourses = async (req, res) => {
   try {
     // Lấy tất cả khóa học
@@ -47,7 +49,9 @@ export const getAllCourses = async (req, res) => {
         );
 
         // Lọc các nội dung không hợp lệ (nếu có)
-        const validContents = populatedContents.filter(content => content !== null);
+        const validContents = populatedContents.filter(
+          (content) => content !== null
+        );
 
         return {
           ...course.toObject(),
@@ -102,7 +106,9 @@ export const getCourseById = async (req, res) => {
     );
 
     // Lọc các nội dung không hợp lệ (nếu có)
-    const validContents = populatedContents.filter(content => content !== null);
+    const validContents = populatedContents.filter(
+      (content) => content !== null
+    );
 
     res.status(200).json({
       course: {
@@ -115,14 +121,19 @@ export const getCourseById = async (req, res) => {
   }
 };
 
-
 export const createCourse = async (req, res) => {
   try {
-    const { courseName, description, posterLink, userGenerated, videoIntro, price, category } =
-      req.body;
+    const {
+      courseName,
+      description,
+      posterLink,
+      userGenerated,
+      videoIntro,
+      price,
+      category,
+    } = req.body;
     // Kiểm tra nếu thiếu các trường bắt buộc
     if (!courseName || !description || !posterLink || !category) {
-
       return res.status(400).json({
         message: "Missing required fields",
       });
@@ -243,7 +254,7 @@ export const updatedCourse = async (req, res) => {
 
 export const deleteCourse = async (req, res) => {
   try {
-    const  courseId  = req.params.courseId;
+    const courseId = req.params.courseId;
     const course = await Course.findOneAndDelete({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
