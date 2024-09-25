@@ -4,7 +4,7 @@ import connectDB from "./config/connectDB.js";
 import authRouter from "./router/authRouter.js";
 import uploadRouter from "./router/uploadRouter.js";
 import cookieParser from "cookie-parser";
-import authMiddleware from "./middleware/authMiddleware.js";
+//import authMiddleware from "./middleware/authMiddleware.js";
 import { quizzRouter } from "./router/quizzRouter.js";
 import { specs, swaggerUi } from "./config/swagger.js";
 import courseRouter from "./router/courseRouter.js";

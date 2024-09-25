@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import contents from "../content/contentModel.js";
+import Content from "../content/contentModel.js";
+
 
 const courseSchema = new mongoose.Schema({
   courseId: {
     type: String,
-    require: true,
+    required: true,
     unique: true,
   },
   courseName: {
@@ -34,15 +35,15 @@ const courseSchema = new mongoose.Schema({
   },
   price: {
     type: String,
-    require: true,
+    required: true,
   },
   category: {
     type: String,
-    require: true,
+    required: true,
   },
-  contents: [contents],
+  contents: [Content],
 });
 
-const Course = mongoose.model("Courses", courseSchema);
+const Course = mongoose.model("Course", courseSchema);
 
 export default Course;

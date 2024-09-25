@@ -3,7 +3,7 @@ import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import dotenv from 'dotenv';
-
+import Video from '../../model/video/videoModel.js';
 dotenv.config();
 
 
@@ -23,22 +23,37 @@ export const uploadVideo = async (req, res) => {
 
     try {
       const file = req.file;
-      if(!file){
-        return res.status(404).json({message: 'File not found'});
+      if (!file) {
+        return res.status(404).json({ message: 'File not found' });
       }
+
       const fileExtension = path.extname(file.originalname).toLowerCase();
       const allowedExtension = '.mp4';
 
       if (fileExtension !== allowedExtension) {
         return res.status(400).json({ error: 'Only MP4 files are allowed' });
       }
+
       const blobName = uuidv4() + fileExtension;
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       await blockBlobClient.uploadData(file.buffer, {
         blobHTTPHeaders: { blobContentType: req.file.mimetype }
       });
+
       const fileUrl = blockBlobClient.url;
-      res.status(200).json({ fileUrl, blobName });
+
+
+      const newVideo = new Video({
+        videoId: uuidv4(),
+        title: req.body.title,
+        videoLink: fileUrl,
+        uploadDate: new Date(),
+      });
+
+      // Lưu video vào cơ sở dữ liệu
+      await newVideo.save();
+
+      res.status(200).json({ fileUrl, blobName, newVideo });
     } catch (error) {
       console.error('Error uploading file:', error);
       res.status(500).json({ error: 'Upload failed' });
