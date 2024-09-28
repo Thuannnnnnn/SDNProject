@@ -5,6 +5,7 @@ import {
   getAllCourses,
   getCourseById,
   updatedCourse,
+  getContentByCourseId
 } from "../controller/course/courseController.js";
 
 const courseRouter = express.Router();
@@ -215,4 +216,5 @@ courseRouter.delete("/delete/:courseId", deleteCourse);
  *         description: Internal server error
  */
 courseRouter.get("/getById/:courseId", getCourseById);
+courseRouter.get("/getContentByCourseId/:courseId", getContentByCourseId);
 export default courseRouter;
