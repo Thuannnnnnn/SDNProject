@@ -33,7 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/quizz",authMiddleware, quizzRouter);
 app.use("/api/upload",authMiddleware, uploadRouter);
 app.use("/api/exam",authMiddleware, examRouter);
-app.use("/api/coursePurchased", coursePurchasedrouter);
+app.use("/api/coursePurchased",authMiddleware, coursePurchasedrouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });

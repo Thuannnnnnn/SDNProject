@@ -13,7 +13,7 @@ const coursePurchasedrouter = express.Router();
 coursePurchasedrouter.post('/create', addCoursePurchase);
 coursePurchasedrouter.get('/getAll', getAllCoursePurchases);
 coursePurchasedrouter.get('/getByid/:id', getCoursePurchaseById);
-coursePurchasedrouter.get('/getByEmail/:email', getCoursePurchasesByEmail); // New route for getting purchases by email
+coursePurchasedrouter.get('/getByEmail/:email', getCoursePurchasesByEmail);
 coursePurchasedrouter.put('/edit/:id', updateCoursePurchase);
 coursePurchasedrouter.delete('/delete/:id', deleteCoursePurchase);
 
