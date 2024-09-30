@@ -12,6 +12,7 @@ import morgan from "morgan";
 import contentRouter from "./router/contentRouter.js";
 import examRouter from "./router/examRouter.js";
 import cartRouter from "./router/cartRouter.js";
+import coursePurchasedrouter from "./router/coursePurchased.js";
 const app = express();
 const port = 8080;
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/quizz",authMiddleware, quizzRouter);
 app.use("/api/upload",authMiddleware, uploadRouter);
 app.use("/api/exam",authMiddleware, examRouter);
+app.use("/api/coursePurchased", coursePurchasedrouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
