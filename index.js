@@ -15,7 +15,7 @@ import cartRouter from "./router/cartRouter.js";
 import coursePurchasedrouter from "./router/coursePurchased.js";
 import payMentrouter from "./router/paymentRouter.js";
 const app = express();
-const port = 8080;
+const port = 3030;
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(express.json());
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/course", authMiddleware, courseRouter);
 app.use("/api/content",authMiddleware, contentRouter);
-app.use("/api/cart",authMiddleware, cartRouter);
+app.use("/api/cart", cartRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/quizz",authMiddleware, quizzRouter);
 app.use("/api/upload",authMiddleware, uploadRouter);
