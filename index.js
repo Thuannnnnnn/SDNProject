@@ -13,6 +13,7 @@ import contentRouter from "./router/contentRouter.js";
 import examRouter from "./router/examRouter.js";
 import cartRouter from "./router/cartRouter.js";
 import coursePurchasedrouter from "./router/coursePurchased.js";
+import payMentrouter from "./router/paymentRouter.js";
 const app = express();
 const port = 8080;
 
@@ -34,6 +35,7 @@ app.use("/api/quizz",authMiddleware, quizzRouter);
 app.use("/api/upload",authMiddleware, uploadRouter);
 app.use("/api/exam",authMiddleware, examRouter);
 app.use("/api/coursePurchased",authMiddleware, coursePurchasedrouter);
+app.use("/api/payment", payMentrouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
