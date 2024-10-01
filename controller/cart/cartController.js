@@ -3,7 +3,7 @@ import Course from "../../model/course/courseModel.js";
 
 export const getCartByEmail = async (req, res) => {
   try {
-    const { userGenerated } = req.query; // Lấy userGenerated từ query params
+    const { userGenerated } = req.query;
     const cart = await Cart.findOne({ userGenerated }).populate(
       "courses.courseId"
     );
