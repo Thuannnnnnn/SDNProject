@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { VNPay } from 'vnpay';
+import { v4 as uuidv4 } from 'uuid';
 const vnpay = new VNPay({
   tmnCode: process.env.VNPAY_TMN_CODE,
   secureSecret: process.env.VNPAY_SECURE_SECRET,
@@ -16,7 +17,7 @@ export const createPaymentUrl = (req, res)=>{
   const paymentUrl = vnpay.buildPaymentUrl({
     vnp_Amount: amount,
     vnp_IpAddr: req.ip,
-    vnp_TxnRef: '123456',
+    vnp_TxnRef: uuidv4(),
     vnp_OrderInfo: 'Payment for buy course',
     vnp_OrderType: 'other',
     vnp_ReturnUrl: `http://localhost:8080/vnpay-return`,

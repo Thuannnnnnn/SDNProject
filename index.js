@@ -35,7 +35,7 @@ app.use("/api/quizz",authMiddleware, quizzRouter);
 app.use("/api/upload",authMiddleware, uploadRouter);
 app.use("/api/exam",authMiddleware, examRouter);
 app.use("/api/coursePurchased",authMiddleware, coursePurchasedrouter);
-app.use("/api/payment", payMentrouter);
+app.use("/api/payment",authMiddleware, payMentrouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
