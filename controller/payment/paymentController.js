@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { VNPay } from 'vnpay';
+import { VNPay,VnpLocale  } from 'vnpay';
 import { v4 as uuidv4 } from 'uuid';
 const vnpay = new VNPay({
   tmnCode: process.env.VNPAY_TMN_CODE,
@@ -10,7 +10,6 @@ const vnpay = new VNPay({
 });
 export const createPaymentUrl = (req, res)=>{
   const { amount } = req.body;
-
   if (!amount || isNaN(amount)) {
     return res.status(400).json({ error: 'Invalid amount provided' });
   }
@@ -21,6 +20,7 @@ export const createPaymentUrl = (req, res)=>{
     vnp_OrderInfo: 'Payment for buy course',
     vnp_OrderType: 'other',
     vnp_ReturnUrl: `http://localhost:8080/vnpay-return`,
+    vnp_Locale: VnpLocale.EN,
   });
 
   res.json({ paymentUrl });

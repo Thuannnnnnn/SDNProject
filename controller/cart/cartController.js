@@ -30,7 +30,6 @@ export const getCartByEmail = async (req, res) => {
 export const addCourseToCart = async (req, res) => {
   try {
     const { cartId, courseId } = req.body;
-
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -49,6 +48,7 @@ export const addCourseToCart = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 export const deteleCourse = async (req, res) => {
   try {
     const { cartId, courseId } = req.body;
@@ -74,3 +74,27 @@ export const deteleCourse = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const deleteCourses = async (req, res) => {
+  try {
+    const { cartId, courseIds, courseId } = req.query;
+    if (!cartId) {
+      return res.status(404).json({ message: "CartId not Found" });
+    }
+    const idsToDelete = courseIds ? courseIds.split(',') : (courseId ? [courseId] : null);
+    if (!idsToDelete || idsToDelete.length === 0) {
+      return res.status(404).json({ message: "No CourseIds provided" });
+    }
+    const cart = await Cart.findOne({ cartId });
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not Found!" });
+    }
+    cart.courses = cart.courses.filter(
+      (course) => !idsToDelete.includes(course.courseId.toString())
+    );
+    await cart.save();
+    res.status(200).json({ message: "Courses removed from cart", cart });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

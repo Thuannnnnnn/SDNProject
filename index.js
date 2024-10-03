@@ -14,8 +14,9 @@ import examRouter from "./router/examRouter.js";
 import cartRouter from "./router/cartRouter.js";
 import coursePurchasedrouter from "./router/coursePurchased.js";
 import payMentrouter from "./router/paymentRouter.js";
+import orderRouter from "./router/orderHistory.js";
 const app = express();
-const port = 3030;
+const port = 8080;
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use(express.json());
@@ -24,9 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("combined"));
 connectDB();
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
 app.use("/api/course", authMiddleware, courseRouter);
 app.use("/api/content",authMiddleware, contentRouter);
 app.use("/api/cart", cartRouter);
@@ -36,6 +34,7 @@ app.use("/api/upload",authMiddleware, uploadRouter);
 app.use("/api/exam",authMiddleware, examRouter);
 app.use("/api/coursePurchased",authMiddleware, coursePurchasedrouter);
 app.use("/api/payment",authMiddleware, payMentrouter);
+app.use("/api/order",authMiddleware, orderRouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });

@@ -3,6 +3,7 @@ import {
   addCourseToCart,
   deteleCourse,
   getCartByEmail,
+  deleteCourses
 } from "../controller/cart/cartController.js";
 
 const cartRouter = express.Router();
@@ -120,5 +121,32 @@ cartRouter.post("/addToCart", addCourseToCart);
  *         description: Error while deleting course from cart
  */
 cartRouter.post("/deteleCourseOutCart", deteleCourse);
+/**
+ * @swagger
+ * /api/cart/deteleCourseOrder:
+ *   delete:
+ *     summary: Delete course from cart
+ *     tags: [Cart]
+ *     description: Remove a specified course from a user's cart.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cartId:
+ *                 type: string
+ *               courseId:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Course removed from cart successfully
+ *       '404':
+ *         description: Cart or Course not found
+ *       '500':
+ *         description: Error while deleting course from cart
+ */
+cartRouter.delete("/deteleCourseOrder", deleteCourses);
 
 export default cartRouter;
