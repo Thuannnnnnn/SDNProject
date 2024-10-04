@@ -1,6 +1,5 @@
 import CoursePurchased from '../../model/coursePurchased/coursePurchasedModel.js';
 import { v4 as uuidv4 } from 'uuid';
-
 export const addCoursePurchase = async (userEmail, courseId) => {
   if (!courseId) {
     return false;
@@ -88,5 +87,22 @@ export const getCoursePurchasesByEmail = async (req, res) => {
     res.status(200).json(coursePurchases);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+export const checkCourseOwnership = async (req, res) => {
+  try {
+    const userEmail = req.params.email;
+    const courseId = req.params.courseId;
+    const coursePurchase = await CoursePurchased.findOne({
+      userEmail: userEmail,
+      'courses.courseId': courseId
+    });
+    if (!coursePurchase) {
+      return res.status(200).json({ ownsCourse: false });
+    }
+    return res.status(200).json({ ownsCourse: true });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message });
   }
 };
