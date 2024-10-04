@@ -1,10 +1,9 @@
 import CoursePurchased from '../../model/coursePurchased/coursePurchasedModel.js';
 import { v4 as uuidv4 } from 'uuid';
 
-export const addCoursePurchase = async (req, res) => {
-  const { userEmail, courseId } = req.body;
+export const addCoursePurchase = async (userEmail, courseId) => {
   if (!courseId) {
-    return res.status(400).json({ message: 'Course ID is required.' });
+    return false;
   }
   try {
     let coursePurchase = await CoursePurchased.findOne({ userEmail });
@@ -21,9 +20,10 @@ export const addCoursePurchase = async (req, res) => {
       await coursePurchase.save();
     }
 
-    res.status(201).json({ message: 'Course purchased successfully.', coursePurchase });
+    return true;
   } catch (error) {
-    res.status(500).json({ message: 'Error purchasing course.', error });
+    console.error(error);
+    return false;
   }
 };
 

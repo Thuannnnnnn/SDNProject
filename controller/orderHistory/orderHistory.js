@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import SendEmail from "../../utilis/mail.js";
 import User from "../../model/userModel.js";
 import Course from "../../model/course/courseModel.js";
-
+import { addCoursePurchase } from "../coursePurchased/coursePurchasedController.js";
 export const addOrderHistory = async (req, res) => {
   const { userEmail, price, courses } = req.body;
 
@@ -19,7 +19,6 @@ export const addOrderHistory = async (req, res) => {
       courses,
     });
     await newOrderHistory.save();
-
     const email = userEmail;
     const user = await User.findOne({ email }).select("name");
     if (!user) {
@@ -28,6 +27,7 @@ export const addOrderHistory = async (req, res) => {
     const courseNames = await Promise.all(
       courses.map(async (course) => {
         const courseId = course.courseId;
+        addCoursePurchase(email,courseId);
         const courseData = await Course.findById(courseId).select('courseName');
         return courseData ? courseData.courseName : 'Unknown Course';
       })
