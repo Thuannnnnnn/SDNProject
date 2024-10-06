@@ -16,7 +16,7 @@ const Content = new mongoose.Schema(
     contentType: {
       type: String,
       required: true,
-      enum: ["videos", "exams", "docs", "questions"],
+      enum: ["videos", "docs", "questions"],
     },
     contentRef: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,8 +1,8 @@
 import Course from "../../model/course/courseModel.js";
 import Docs from "../../model/docs/docsModel.js";
-import Exam from "../../model/exam/exam.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
+import { dropQuestion, updateQuiz } from "../quizz/quizzController.js";
 
 function generateId(contentName, courseId) {
   const firstChars = contentName
@@ -16,14 +16,6 @@ async function getVideoRef(contentRef) {
   const video = await Video.findById({ _id: contentRef });
   if (video) {
     return video._id;
-  }
-  return { status: "not found" };
-}
-
-async function getExamRef(contentRef) {
-  const exam = await Exam.findById({ _id: contentRef });
-  if (exam) {
-    return exam._id;
   }
   return { status: "not found" };
 }
@@ -53,7 +45,9 @@ export const getContentById = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    const content = course.contents.find(item => item.contentId === contentId);
+    const content = course.contents.find(
+      (item) => item.contentId === contentId
+    );
     if (!content) {
       return res.status(404).json({ message: "Content not found" });
     }
@@ -62,8 +56,6 @@ export const getContentById = async (req, res) => {
 
     if (content.contentType === "videos") {
       populatedContent = await Video.findById(content.contentRef);
-    } else if (content.contentType === "exams") {
-      populatedContent = await Exam.findById(content.contentRef);
     } else if (content.contentType === "docs") {
       populatedContent = await Docs.findById(content.contentRef);
     } else if (content.contentType === "questions") {
@@ -84,8 +76,6 @@ export const getContentById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 
 export const createContent = async (req, res) => {
   try {
@@ -119,8 +109,6 @@ export const createContent = async (req, res) => {
     let refResult;
     if (contentType === "videos") {
       refResult = await getVideoRef(contentRef);
-    } else if (contentType === "exams") {
-      refResult = await getExamRef(contentRef);
     } else if (contentType === "docs") {
       refResult = await getDocsRef(contentRef);
     } else {
@@ -155,26 +143,31 @@ export const createContent = async (req, res) => {
 
 export const updateContent = async (req, res) => {
   try {
-    const { contentId, contentName, courseId, contentRef, contentType } =
-      req.body;
+    const { contentId, courseId, updatedContent } = req.body;
 
+    // Tìm khóa học theo courseId
     const course = await Course.findOne({ courseId });
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    const content = course.contents.find(
+    // Tìm chỉ mục của nội dung trong mảng contents dựa trên contentId
+    const contentIndex = course.contents.findIndex(
       (item) => item.contentId === contentId
     );
-    if (!content) {
+
+    if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
 
-    // Kiểm tra trùng lặp contentRef
+    // Lấy các giá trị từ updatedContent
+    const { contentName, contentType, quizData } = updatedContent;
+    const { _id, question, options, answer } = quizData[0];
+
+    // Kiểm tra trùng lặp contentRef trong các nội dung khác
     const isContentRefExists = course.contents.some(
       (item) =>
-        item.contentRef.toString() === contentRef &&
-        item.contentId !== contentId
+        item.contentRef.toString() === _id && item.contentId !== contentId
     );
     if (isContentRefExists) {
       return res
@@ -185,30 +178,35 @@ export const updateContent = async (req, res) => {
     // Xác thực tham chiếu
     let refResult;
     if (contentType === "videos") {
-      refResult = await Video.findById(contentRef);
-    } else if (contentType === "exams") {
-      refResult = await Exam.findById(contentRef);
+      refResult = await Video.findById(_id);
     } else if (contentType === "docs") {
-      refResult = await Docs.findById(contentRef);
+      refResult = await Docs.findById(_id);
     } else {
-      refResult = await Question.findById(contentRef);
+      refResult = await Question.findById(_id);
     }
 
     if (!refResult) {
       return res.status(404).json({ message: "Reference not found" });
     }
 
-    // Cập nhật nội dung
-    content.contentName = contentName;
-    content.contentRef = refResult;
-    content.contentType = contentType;
-    content.createDate = new Date().toISOString().split("T")[0];
+    // Cập nhật nội dung tại chỉ mục tương ứng
+    course.contents[contentIndex].contentName =
+      contentName || course.contents[contentIndex].contentName;
+    course.contents[contentIndex].contentType =
+      contentType || course.contents[contentIndex].contentType;
+    course.contents[contentIndex].contentRef =
+      _id || course.contents[contentIndex].contentRef;
 
+    // Lưu khóa học với nội dung đã được cập nhật
     await course.save();
 
+    // Cập nhật quiz
+    updateQuiz(_id, question, options, answer);
+
+    // Phản hồi kết quả thành công
     res.status(200).json({
       message: "Content updated successfully!",
-      content,
+      content: course.contents[contentIndex],
     });
   } catch (error) {
     res.status(500).json({
@@ -220,8 +218,7 @@ export const updateContent = async (req, res) => {
 
 export const deleteContent = async (req, res) => {
   try {
-    const { contentId, courseId } = req.body;
-
+    const { contentId, courseId, contentRef } = req.body;
     // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
@@ -235,9 +232,13 @@ export const deleteContent = async (req, res) => {
     if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
-
+    const resultQuestions = dropQuestion(contentRef);
+    if (resultQuestions == 404) {
+      return res.status(404).json({ message: "Question not found" });
+    }
     // Loại bỏ nội dung
     course.contents.splice(contentIndex, 1);
+
     await course.save();
 
     res.status(200).json({ message: "Content deleted successfully!" });
