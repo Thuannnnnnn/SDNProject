@@ -143,7 +143,8 @@ export const createContent = async (req, res) => {
 
 export const updateContent = async (req, res) => {
   try {
-    const { contentId, courseId, updatedContent } = req.body;
+    const { contentId, courseId, contentName, contentType, updatedContent } =
+      req.body;
 
     // Tìm khóa học theo courseId
     const course = await Course.findOne({ courseId });
@@ -159,15 +160,20 @@ export const updateContent = async (req, res) => {
     if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
+    let id;
+    if (contentType == "questions") {
+      const { quizData } = updatedContent;
+      const { _id, question, options, answer } = quizData[0];
+      id = _id;
+      updateQuiz(_id, question, options, answer);
+    } else {
+      const { idForData } = updatedContent;
+      id = idForData;
+    }
 
-    // Lấy các giá trị từ updatedContent
-    const { contentName, contentType, quizData } = updatedContent;
-    const { _id, question, options, answer } = quizData[0];
-
-    // Kiểm tra trùng lặp contentRef trong các nội dung khác
     const isContentRefExists = course.contents.some(
       (item) =>
-        item.contentRef.toString() === _id && item.contentId !== contentId
+        item.contentRef.toString() === id && item.contentId !== contentId
     );
     if (isContentRefExists) {
       return res
@@ -178,11 +184,11 @@ export const updateContent = async (req, res) => {
     // Xác thực tham chiếu
     let refResult;
     if (contentType === "videos") {
-      refResult = await Video.findById(_id);
+      refResult = await Video.findById(id);
     } else if (contentType === "docs") {
-      refResult = await Docs.findById(_id);
+      refResult = await Docs.findById(id);
     } else {
-      refResult = await Question.findById(_id);
+      refResult = await Question.findById(id);
     }
 
     if (!refResult) {
@@ -195,13 +201,10 @@ export const updateContent = async (req, res) => {
     course.contents[contentIndex].contentType =
       contentType || course.contents[contentIndex].contentType;
     course.contents[contentIndex].contentRef =
-      _id || course.contents[contentIndex].contentRef;
+      id || course.contents[contentIndex].contentRef;
 
     // Lưu khóa học với nội dung đã được cập nhật
     await course.save();
-
-    // Cập nhật quiz
-    updateQuiz(_id, question, options, answer);
 
     // Phản hồi kết quả thành công
     res.status(200).json({
@@ -232,7 +235,11 @@ export const deleteContent = async (req, res) => {
     if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
-    const resultQuestions = dropQuestion(contentRef);
+    let resultQuestions;
+    if (contentRef.contentType == "questions") {
+      resultQuestions = dropQuestion(contentRef);
+    }
+
     if (resultQuestions == 404) {
       return res.status(404).json({ message: "Question not found" });
     }
