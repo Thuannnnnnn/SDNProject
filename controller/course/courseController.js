@@ -27,8 +27,6 @@ export const getAllCourses = async (req, res) => {
             // Dựa vào contentType để lấy dữ liệu từ contentRef
             if (content.contentType === "videos") {
               populatedContent = await Video.findById(content.contentRef);
-            } else if (content.contentType === "exams") {
-              populatedContent = await Exam.findById(content.contentRef);
             } else if (content.contentType === "docs") {
               populatedContent = await Docs.findById(content.contentRef);
             } else if (content.contentType === "questions") {
@@ -52,10 +50,14 @@ export const getAllCourses = async (req, res) => {
         const validContents = populatedContents.filter(
           (content) => content !== null
         );
-
+        const populatedExam = await Exam.findById(course.exam);
+        // if (!populatedExam) {
+        //   return null;
+        // }
         return {
           ...course.toObject(),
           contents: validContents,
+          populatedExam,
         };
       })
     );
@@ -165,6 +167,7 @@ export const createCourse = async (req, res) => {
       videoIntro,
       price,
       category,
+      exam: null,
       contents: [],
     });
     // Lưu vào cơ sở dữ liệu
@@ -245,6 +248,8 @@ export const updatedCourse = async (req, res) => {
   }
 };
 
+export const updateExam = async (req, res) => {};
+
 export const deleteCourse = async (req, res) => {
   try {
     const courseId = req.params.courseId;
@@ -273,22 +278,18 @@ export const getContentByCourseId = async (req, res) => {
         let populatedContent;
 
         switch (content.contentType) {
-        case "videos":
-          populatedContent = await Video.findById(content.contentRef);
-          break;
-        case "exams":
-          populatedContent = await Exam.findById(content.contentRef);
-          break;
-        case "docs":
-          populatedContent = await Docs.findById(content.contentRef);
-          break;
-        case "questions":
-          populatedContent = await Question.findById(content.contentRef);
-          break;
-        default:
-          populatedContent = null;
+          case "videos":
+            populatedContent = await Video.findById(content.contentRef);
+            break;
+          case "docs":
+            populatedContent = await Docs.findById(content.contentRef);
+            break;
+          case "questions":
+            populatedContent = await Question.findById(content.contentRef);
+            break;
+          default:
+            populatedContent = null;
         }
-
 
         if (!populatedContent) {
           return null;
@@ -300,7 +301,6 @@ export const getContentByCourseId = async (req, res) => {
         };
       })
     );
-
 
     const validContents = populatedContents.filter(
       (content) => content !== null
