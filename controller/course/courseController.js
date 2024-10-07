@@ -248,7 +248,6 @@ export const updatedCourse = async (req, res) => {
   }
 };
 
-export const updateExam = async (req, res) => {};
 
 export const deleteCourse = async (req, res) => {
   try {

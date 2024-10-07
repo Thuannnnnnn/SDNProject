@@ -2,7 +2,7 @@ import Course from "../../model/course/courseModel.js";
 import Docs from "../../model/docs/docsModel.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
-import { dropQuestions, updateQuestion } from "../quizz/quizzController.js";
+import { dropQuestionId, updateQuestions } from "../quizz/quizzController.js";
 
 function generateId(contentName, courseId) {
   const firstChars = contentName
@@ -161,11 +161,22 @@ export const updateContent = async (req, res) => {
       return res.status(404).json({ message: "Content not found" });
     }
     let id;
-    if (contentType == "questions") {
-      const { quizData } = updatedContent;
-      const { _id, question, options, answer } = quizData[0];
-      id = _id;
-      updateQuestion(_id, question, options, answer);
+
+    if (contentType === "questions") {
+      const quizData = updatedContent.quizData;
+      if (
+        quizData &&
+        Array.isArray(quizData.questions) &&
+        quizData.questions.length > 0
+      ) {
+        quizData.questions.forEach((questionItem) => {
+          const { _id, question, options, answer } = questionItem;
+
+          updateQuestions(quizData._id, _id, question, options, answer);
+        });
+
+        id = quizData._id;
+      }
     } else {
       const { idForData } = updatedContent;
       id = idForData;
@@ -221,7 +232,7 @@ export const updateContent = async (req, res) => {
 
 export const deleteContent = async (req, res) => {
   try {
-    const { contentId, courseId, contentRef } = req.body;
+    const { contentId, courseId, contentRef, contentType } = req.body;
     // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
@@ -236,8 +247,8 @@ export const deleteContent = async (req, res) => {
       return res.status(404).json({ message: "Content not found" });
     }
     let resultQuestions;
-    if (contentRef.contentType == "questions") {
-      resultQuestions = dropQuestions(contentRef);
+    if (contentType == "questions") {
+      resultQuestions = dropQuestionId(contentRef);
     }
 
     if (resultQuestions == 404) {
