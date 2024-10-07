@@ -146,13 +146,6 @@ export const createCourse = async (req, res) => {
       return res.status(400).json({ message: "Course name already exists" });
     }
 
-    const existingCourse = await Course.findOne({ courseName });
-
-    // Kiểm tra xem tên khóa học đã tồn tại chưa
-    if (existingCourse) {
-      return res.status(400).json({ message: "Course name already exists" });
-    }
-
     if (isNumber(price) == false) {
       return res.status(500).json({ message: "price must number" });
     }
