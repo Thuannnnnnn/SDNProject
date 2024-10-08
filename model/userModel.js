@@ -24,6 +24,10 @@ const users= new mongoose.Schema({
   phoneNumber:{
     type : String,
   },
+  avatarUrl: {
+    type: String,
+    default: '',
+  },
   // uid: {
   //   type: String,
   // }
