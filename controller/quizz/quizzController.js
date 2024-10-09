@@ -1,15 +1,10 @@
 import Question from "../../model/quizz/question.js";
 import Results from "../../model/quizz/answers.js";
-import Content from "../../model/content/contentModel.js";
 import XLSX from "xlsx";
 
 export async function getQuestions(req, res) {
   try {
-    const { contentId } = req.query;
-
-    const filter = contentId ? { contentId } : {};
-    const questions = await Question.find(filter);
-
+    const questions = await Question.find();
     res.status(200).json(questions);
   } catch (error) {
     res
@@ -18,46 +13,166 @@ export async function getQuestions(req, res) {
   }
 }
 
-export async function insertQuestions(req, res) {
-  try {
-    const { questions } = req.body;
+export async function addQuestions(req, res) {
+  const { questions } = req.body; // Chỉ cần nhận questions
 
-    if (!questions || questions.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "No questions available to insert" });
+  if (!questions || !Array.isArray(questions)) {
+    return res
+      .status(400)
+      .json({ error: "Questions must be provided as an array." });
+  }
+
+  try {
+    const questionsDocument = new Question({
+      questions: questions.map((question) => ({
+        question: question.question || "",
+        options: question.options || [],
+        answer: question.answer || 0,
+        createdAt: new Date(),
+      })),
+    });
+
+    await questionsDocument.save();
+    res
+      .status(200)
+      .json({ msg: "Questions added successfully!", data: questionsDocument });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error adding questions", details: error.message });
+  }
+}
+
+export async function updateQuestion(req, res) {
+  const { documentId, questionId } = req.params; // Thêm documentId và questionId
+
+  const { question, options, answer } = req.body;
+
+  if (!question || !options || answer === undefined) {
+    return res
+      .status(400)
+      .json({ error: "Question, options, and answer must be provided." });
+  }
+
+  try {
+    const questionsDocument = await Question.findById(documentId);
+    if (!questionsDocument) {
+      return res.status(404).json({ error: "No questions document found." });
     }
 
-    const questionsWithContentId = questions.map((question) => ({
-      ...question,
-    }));
+    const questionToUpdate = questionsDocument.questions.id(questionId);
+    if (!questionToUpdate) {
+      return res.status(404).json({ error: "Question not found." });
+    }
 
-    const insertedQuestions = await Question.insertMany(questionsWithContentId);
+    questionToUpdate.question = question;
+    questionToUpdate.options = options;
+    questionToUpdate.answer = answer;
+
+    await questionsDocument.save();
+    res
+      .status(200)
+      .json({ msg: "Question updated successfully!", data: questionToUpdate });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error updating question", details: error.message });
+  }
+}
+
+export async function updateQuestions(
+  documentId,
+  questionId,
+  question,
+  options,
+  answer
+) {
+  if (!question || !options || answer === undefined) {
+    return 400;
+  }
+
+  try {
+    const questionsDocument = await Question.findById(documentId);
+    if (!questionsDocument) {
+      return 404;
+    }
+
+    const questionToUpdate = questionsDocument.questions.id(questionId);
+    if (!questionToUpdate) {
+      return 404;
+    }
+
+    questionToUpdate.question = question;
+    questionToUpdate.options = options;
+    questionToUpdate.answer = answer;
+
+    await questionsDocument.save();
+    return 200;
+  } catch (error) {
+    return error;
+  }
+}
+
+export async function importQuestions(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const excelFile = req.file;
+
+    if (
+      excelFile.mimetype !==
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Invalid file type. Please upload an .xlsx file." });
+    }
+
+    const workbook = XLSX.read(excelFile.buffer);
+    const sheetName = workbook.SheetNames[0];
+    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    let questionsDocument = await Question.findOne();
+    if (!questionsDocument) {
+      questionsDocument = new Question();
+    }
+
+    data.forEach((row) => {
+      const options = [
+        row["Option 1"] || "",
+        row["Option 2"] || "",
+        row["Option 3"] || "",
+        row["Option 4"] || "",
+      ].filter((option) => option.trim() !== "");
+
+      questionsDocument.questions.push({
+        question: row.question || "",
+        options,
+        answer: row.Answer || 0,
+        createdAt: new Date(),
+      });
+    });
+
+    await questionsDocument.save();
 
     res.status(200).json({
-      message: "Questions inserted successfully!",
-      data: insertedQuestions,
+      msg: "Questions imported successfully!",
+      data: questionsDocument,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ error: "Error inserting questions", details: error.message });
+      .json({ error: "Error importing questions", details: error.message });
   }
 }
 
 export async function dropQuestions(req, res) {
   try {
-    const { contentId } = req.body;
-
-    if (!contentId) {
-      return res
-        .status(400)
-        .json({ error: "ContentId is required to delete questions." });
-    }
-
-    const result = await Question.deleteMany({ contentId });
+    const result = await Question.deleteMany();
     res.status(200).json({
-      message: "Questions deleted successfully!",
+      msg: "Questions deleted successfully!",
       deletedCount: result.deletedCount,
     });
   } catch (error) {
@@ -67,17 +182,10 @@ export async function dropQuestions(req, res) {
   }
 }
 
-export async function dropQuestion(_id) {
+export async function dropQuestionId(Id) {
   try {
-    if (!_id) {
-      return 404;
-    }
-
-    const result = await Question.deleteMany({ _id });
-    if (result) {
-      return 200;
-    }
-    return 404;
+    const result = await Question.findByIdAndDelete(Id);
+    return result;
   } catch (error) {
     return error;
   }
@@ -113,7 +221,7 @@ export async function storeResult(req, res) {
     await newResult.save();
     res
       .status(200)
-      .json({ message: "Result saved successfully!", data: newResult });
+      .json({ msg: "Result saved successfully!", data: newResult });
   } catch (error) {
     res
       .status(500)
@@ -125,7 +233,7 @@ export async function dropResults(req, res) {
   try {
     const result = await Results.deleteMany();
     res.status(200).json({
-      message: "Results deleted successfully!",
+      msg: "Results deleted successfully!",
       deletedCount: result.deletedCount,
     });
   } catch (error) {
@@ -134,124 +242,3 @@ export async function dropResults(req, res) {
       .json({ error: "Error deleting results", details: error.message });
   }
 }
-
-export async function importQuizz(req, res) {
-  try {
-    const contentId = req.user ? req.user.contentId : req.body.contentId;
-
-    if (!contentId) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "contentId is required",
-      });
-    }
-
-    const content = await Content.findOne({ contentId });
-    if (!content) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "Invalid contentId. Content does not exist.",
-      });
-    }
-
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ status: 400, success: false, message: "No file uploaded" });
-    }
-
-    const excelFile = req.file;
-
-    if (
-      excelFile.mimetype !==
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
-      return res.status(400).json({
-        status: 400,
-        success: false,
-        message: "Invalid file type. Please upload an .xlsx file.",
-      });
-    }
-
-    const workbook = XLSX.read(excelFile.buffer);
-    const sheetName = workbook.SheetNames[0];
-    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-    const questionsToSave = data.map((row) => {
-      const options = [
-        row["Option 1"] || "",
-        row["Option 2"] || "",
-        row["Option 3"] || "",
-        row["Option 4"] || "",
-      ].filter((option) => option.trim() !== "");
-
-      return {
-        contentId,
-        question: row.question || "",
-        options: options,
-        answer: row.Answer || 0,
-        createdAt: new Date(),
-      };
-    });
-
-    await Question.insertMany(questionsToSave);
-
-    res.status(200).json({
-      status: 200,
-      success: true,
-      message: "File processed and data saved successfully",
-    });
-  } catch (error) {
-    console.error("Error processing file:", error.message);
-    res.status(500).json({
-      status: 500,
-      success: false,
-      message: "Server error: " + error.message,
-    });
-  }
-}
-
-export const updateQuiz = async (_id, question, options, answer) => {
-  // Kiểm tra xem question có được cung cấp không
-  if (!question || typeof question !== "string") {
-    return { message: "Invalid data: question must be a non-empty string." };
-  }
-
-  // Kiểm tra options có phải là mảng và có ít nhất 2 tùy chọn không
-  if (!Array.isArray(options) || options.length < 2) {
-    return {
-      message: "Invalid data: options must be an array with at least 2 items.",
-    };
-  }
-
-  // Kiểm tra answer có phải là số không
-  if (typeof answer !== "number" || answer < 0 || answer >= options.length) {
-    return {
-      message: "Invalid data: answer must be a valid index number of options.",
-    };
-  }
-
-  try {
-    // Cập nhật câu hỏi và các thông tin liên quan
-    const updatedQuestion = await Question.findByIdAndUpdate(
-      _id,
-      {
-        question, // Cập nhật câu hỏi
-        options, // Cập nhật các tùy chọn
-        answer, // Cập nhật câu trả lời
-      },
-      { new: true, runValidators: true } // Trả về bản cập nhật mới và thực thi các validators
-    );
-
-    if (!updatedQuestion) {
-      return { message: "Question not found" };
-    }
-
-    return updatedQuestion;
-  } catch (error) {
-    console.error("Error updating question:", error);
-    return { message: "Error updating question", error };
-  }
-};

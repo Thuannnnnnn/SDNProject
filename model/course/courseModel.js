@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Content from "../content/contentModel.js";
 
-
 const courseSchema = new mongoose.Schema({
   courseId: {
     type: String,
@@ -40,6 +39,11 @@ const courseSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
+  },
+  exam: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Exam",
+    unique: true,
   },
   contents: [Content],
 });

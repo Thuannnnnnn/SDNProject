@@ -2,7 +2,7 @@ import Course from "../../model/course/courseModel.js";
 import Docs from "../../model/docs/docsModel.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
-import { dropQuestion, updateQuiz } from "../quizz/quizzController.js";
+import { dropQuestionId, updateQuestions } from "../quizz/quizzController.js";
 
 function generateId(contentName, courseId) {
   const firstChars = contentName
@@ -143,7 +143,8 @@ export const createContent = async (req, res) => {
 
 export const updateContent = async (req, res) => {
   try {
-    const { contentId, courseId, updatedContent } = req.body;
+    const { contentId, courseId, contentName, contentType, updatedContent } =
+      req.body;
 
     // Tìm khóa học theo courseId
     const course = await Course.findOne({ courseId });
@@ -159,15 +160,31 @@ export const updateContent = async (req, res) => {
     if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
+    let id;
 
-    // Lấy các giá trị từ updatedContent
-    const { contentName, contentType, quizData } = updatedContent;
-    const { _id, question, options, answer } = quizData[0];
+    if (contentType === "questions") {
+      const quizData = updatedContent.quizData;
+      if (
+        quizData &&
+        Array.isArray(quizData.questions) &&
+        quizData.questions.length > 0
+      ) {
+        quizData.questions.forEach((questionItem) => {
+          const { _id, question, options, answer } = questionItem;
 
-    // Kiểm tra trùng lặp contentRef trong các nội dung khác
+          updateQuestions(quizData._id, _id, question, options, answer);
+        });
+
+        id = quizData._id;
+      }
+    } else {
+      const { idForData } = updatedContent;
+      id = idForData;
+    }
+
     const isContentRefExists = course.contents.some(
       (item) =>
-        item.contentRef.toString() === _id && item.contentId !== contentId
+        item.contentRef.toString() === id && item.contentId !== contentId
     );
     if (isContentRefExists) {
       return res
@@ -178,11 +195,11 @@ export const updateContent = async (req, res) => {
     // Xác thực tham chiếu
     let refResult;
     if (contentType === "videos") {
-      refResult = await Video.findById(_id);
+      refResult = await Video.findById(id);
     } else if (contentType === "docs") {
-      refResult = await Docs.findById(_id);
+      refResult = await Docs.findById(id);
     } else {
-      refResult = await Question.findById(_id);
+      refResult = await Question.findById(id);
     }
 
     if (!refResult) {
@@ -195,13 +212,10 @@ export const updateContent = async (req, res) => {
     course.contents[contentIndex].contentType =
       contentType || course.contents[contentIndex].contentType;
     course.contents[contentIndex].contentRef =
-      _id || course.contents[contentIndex].contentRef;
+      id || course.contents[contentIndex].contentRef;
 
     // Lưu khóa học với nội dung đã được cập nhật
     await course.save();
-
-    // Cập nhật quiz
-    updateQuiz(_id, question, options, answer);
 
     // Phản hồi kết quả thành công
     res.status(200).json({
@@ -218,7 +232,7 @@ export const updateContent = async (req, res) => {
 
 export const deleteContent = async (req, res) => {
   try {
-    const { contentId, courseId, contentRef } = req.body;
+    const { contentId, courseId, contentRef, contentType } = req.body;
     // Kiểm tra khóa học có tồn tại không
     const course = await Course.findOne({ courseId });
     if (!course) {
@@ -232,7 +246,11 @@ export const deleteContent = async (req, res) => {
     if (contentIndex === -1) {
       return res.status(404).json({ message: "Content not found" });
     }
-    const resultQuestions = dropQuestion(contentRef);
+    let resultQuestions;
+    if (contentType == "questions") {
+      resultQuestions = dropQuestionId(contentRef);
+    }
+
     if (resultQuestions == 404) {
       return res.status(404).json({ message: "Question not found" });
     }
