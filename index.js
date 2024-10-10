@@ -16,6 +16,7 @@ import coursePurchasedrouter from "./router/coursePurchased.js";
 import payMentrouter from "./router/paymentRouter.js";
 import orderRouter from "./router/orderHistory.js";
 import editProfileRouter from "./router/editProfileRouter.js";
+import { search } from "./router/searchCourse.js";
 const app = express();
 const port = 8080;
 
@@ -37,6 +38,7 @@ app.use("/api/coursePurchased", authMiddleware, coursePurchasedrouter);
 app.use("/api/payment", authMiddleware, payMentrouter);
 app.use("/api/order", authMiddleware, orderRouter);
 app.use("/api/profile", authMiddleware, editProfileRouter);
+app.use("/api/search", search);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
