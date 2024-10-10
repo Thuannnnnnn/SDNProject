@@ -43,7 +43,6 @@ const courseSchema = new mongoose.Schema({
   exam: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Exam",
-    unique: true,
   },
   contents: [Content],
 });
