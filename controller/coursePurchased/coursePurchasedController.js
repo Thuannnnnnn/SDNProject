@@ -85,8 +85,6 @@ export const getCoursePurchasesByEmail = async (req, res) => {
     if (!coursePurchases) {
       return res.status(404).json({ message: "No course purchases found for this email" });
     }
-
-    // Respond with course purchase details
     res.status(200).json({
       CoursePurchases: {
         ...coursePurchases.toObject(),
