@@ -10,7 +10,7 @@ const CartModel = new mongoose.Schema({
     {
       courseId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+        ref: "courses",
         required: true,
       },
       updateDate: {

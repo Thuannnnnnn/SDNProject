@@ -75,18 +75,29 @@ export const deleteCoursePurchase = async (req, res) => {
 
 
 export const getCoursePurchasesByEmail = async (req, res) => {
-  const { email } = req.params;
-
   try {
-    const coursePurchases = await CoursePurchased.find({ userEmail: email }).populate('courses._id');
+    const email  = req.params.email;
+    // Find course purchases by user email and populate course details
+    const coursePurchases = await CoursePurchased.findOne({ userEmail: email }).populate(
+      "courses.courseId" // Populates course details from the Course model
+    );
 
-    if (coursePurchases.length === 0) {
-      return res.status(404).json({ message: 'No course purchases found for this email' });
+    if (!coursePurchases) {
+      return res.status(404).json({ message: "No course purchases found for this email" });
     }
 
-    res.status(200).json(coursePurchases);
+    // Respond with course purchase details
+    res.status(200).json({
+      CoursePurchases: {
+        ...coursePurchases.toObject(),
+        courses: coursePurchases.courses || [],
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: "Error occurred while finding course purchases!",
+      Error: error.message || "Unknown error",
+    });
   }
 };
 export const checkCourseOwnership = async (req, res) => {
