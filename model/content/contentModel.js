@@ -6,12 +6,12 @@ const Content = new mongoose.Schema(
     contentId: {
       type: String,
       required: true,
-      unique: true,
+      unique: false,
     },
     contentName: {
       type: String,
       required: true,
-      unique: true,
+      unique: false,
     },
     contentType: {
       type: String,
@@ -21,7 +21,7 @@ const Content = new mongoose.Schema(
     contentRef: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "contentType",
-      unique: true,
+      unique: false,
     },
     createDate: {
       type: Date,
@@ -29,6 +29,5 @@ const Content = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { _id: false }
 );
 export default Content;
