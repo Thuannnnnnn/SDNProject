@@ -9,12 +9,6 @@ const feedbackSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  ratingPoint: {
-    type: Number,
-    required: true,
-    min: 1,
-    max: 5,
-  },
   feedbackText: {
     type: String,
     default: '',

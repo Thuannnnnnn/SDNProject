@@ -3,10 +3,10 @@ import Feedback from "../../model/feedback/feedback.js";
 // Create Feedback
 export const createFeedback = async (req, res) => {
   try {
-    const { courseId, userEmail, ratingPoint, feedbackText } = req.body;
+    const { courseId, userEmail,feedbackText } = req.body;
 
     // Validate required fields
-    if (!courseId || !userEmail || !ratingPoint) {
+    if (!courseId || !userEmail ) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -18,7 +18,6 @@ export const createFeedback = async (req, res) => {
     const feedback = new Feedback({
       courseId,
       userEmail,
-      ratingPoint,
       feedbackText,
     });
 
@@ -90,7 +89,7 @@ export const getAllFeedback = async (req, res) => {
 export const updateFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    const { courseId, userEmail, ratingPoint, feedbackText} = req.body;
+    const { courseId, userEmail,feedbackText} = req.body;
 
     const feedback = await Feedback.findById(id);
 
@@ -100,7 +99,6 @@ export const updateFeedback = async (req, res) => {
 
     feedback.course_id = courseId || feedback.course_id;
     feedback.user_email = userEmail || feedback.user_email;
-    feedback.rating_point = ratingPoint || feedback.rating_point;
     feedback.feedback_text = feedbackText || feedback.feedback_text;
 
     const updatedFeedback = await feedback.save();
