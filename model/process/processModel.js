@@ -19,7 +19,7 @@ const ProcessSchema = new mongoose.Schema({
     {
       contentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Content",
+        ref: "courses.contents",
       },
       isComplete: {
         type: Boolean,

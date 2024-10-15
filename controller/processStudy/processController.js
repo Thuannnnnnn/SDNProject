@@ -1,10 +1,60 @@
 import Course from "../../model/course/courseModel.js";
 import Process from "../../model/process/processModel.js";
+export const getProcessByCourseIdAndEmail = async (req, res) => {
+  try {
+    const { courseId, email } = req.params;
+
+    const process = await Process.findOne({ courseId: courseId, email: email });
+
+    if (!process) {
+      return res.status(404).json({
+        message: "Process không tồn tại.",
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Lấy thông tin process thành công.",
+      data: process,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy process:", error.message);
+    return res.status(500).json({
+      message: "Lỗi hệ thống.",
+      error: error.message,
+    });
+  }
+};
+
+export const getProcessByEmail = async (req, res) => {
+  try {
+    const {  email } = req.params;
+
+    const process = await Process.find({ email: email });
+    if (!process) {
+      return res.status(404).json({
+        message: "Process không tồn tại.",
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Lấy thông tin process thành công.",
+      data: process,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy process:", error.message);
+    return res.status(500).json({
+      message: "Lỗi hệ thống.",
+      error: error.message,
+    });
+  }
+};
 
 export const createProcessForUser = async (req, res) => {
   try {
     const { courseId, userEmail } = req.body;
-    const course = await Course.findOne({ courseId: courseId });
+    const course = await Course.findById(courseId);
 
     if (!course) {
       return res.status(404).json({
@@ -17,9 +67,10 @@ export const createProcessForUser = async (req, res) => {
       isComplete: false,
     }));
 
+    const processIdnew = userEmail + "_" + courseId;
     const newProcess = new Process({
-      processId: `${userEmail}_${courseId}`,
-      courseId: course._id,
+      processId: processIdnew,
+      courseId: courseId,
       email: userEmail,
       content: courseContents,
     });
@@ -73,7 +124,9 @@ export const deleteProcess = async (req, res) => {
   try {
     const { processId } = req.params;
 
-    const deletedProcess = await Process.findOneAndDelete({ processId: processId });
+    const deletedProcess = await Process.findOneAndDelete({
+      processId: processId,
+    });
 
     if (!deletedProcess) {
       return res.status(404).json({
@@ -93,4 +146,3 @@ export const deleteProcess = async (req, res) => {
     });
   }
 };
-
