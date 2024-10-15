@@ -1,7 +1,3 @@
-
-
-// quizzController
-
 import Question from "../../model/quizz/question.js";
 import Results from "../../model/quizz/answers.js";
 import XLSX from "xlsx";
@@ -18,7 +14,7 @@ export async function getQuestions(req, res) {
 }
 
 export async function addQuestions(req, res) {
-  const { questions } = req.body; // Chỉ cần nhận questions
+  const { questions } = req.body;
 
   if (!questions || !Array.isArray(questions)) {
     return res
@@ -48,7 +44,7 @@ export async function addQuestions(req, res) {
 }
 
 export async function updateQuestion(req, res) {
-  const { documentId, questionId } = req.params; 
+  const { documentId, questionId } = req.params;
 
   const { question, options, answer } = req.body;
 
@@ -236,12 +232,10 @@ export async function storeResult(req, res) {
 export async function dropResults(req, res) {
   try {
     const { id } = req.params;
-    console.log(`Attempting to delete result with ID: ${id}`);
 
     const result = await Results.findByIdAndDelete(id);
 
     if (!result) {
-      console.log(`No result found with ID: ${id}`);
       return res.status(404).json({ error: "Result not found" });
     }
 
