@@ -1,15 +1,21 @@
 import mongoose, { Schema } from "mongoose";
 
 const resultModel = new Schema({
-  username: { type: String },
   result: { type: Array, default: [] },
   attempts: { type: Number, default: 0 },
   points: { type: Number, default: 0 },
-  achived: {
+  achieved: { // Sửa lỗi chính tả
     type: String,
     default: "",
-    createAt: { type: Date, default: Date.now },
+  },
+  createdAt: { // Thêm createdAt để lưu thời gian tạo
+    type: Date,
+    default: Date.now,
+  },
+  selectedItemId: { // Thêm trường selectedItemId
+    type: String,
+    default: null,
   },
 });
 
-export default mongoose.model("result", resultModel);
+export default mongoose.model("Result", resultModel);
