@@ -1,3 +1,7 @@
+
+
+// quizzController
+
 import Question from "../../model/quizz/question.js";
 import Results from "../../model/quizz/answers.js";
 import XLSX from "xlsx";
@@ -44,7 +48,7 @@ export async function addQuestions(req, res) {
 }
 
 export async function updateQuestion(req, res) {
-  const { documentId, questionId } = req.params; // Thêm documentId và questionId
+  const { documentId, questionId } = req.params; 
 
   const { question, options, answer } = req.body;
 
@@ -194,7 +198,10 @@ export async function dropQuestionId(Id) {
 export async function getResult(req, res) {
   try {
     const results = await Results.find();
-    res.status(200).json(results);
+    res.status(200).json(results.map(result => ({
+      ...result.toObject(),
+      selectedItemId: result.selectedItemId,
+    })));
   } catch (error) {
     res
       .status(500)
@@ -202,20 +209,17 @@ export async function getResult(req, res) {
   }
 }
 
-export async function storeResult(req, res) {
-  const { username, result, attempts, points, achieved } = req.body;
 
-  if (!username || result === undefined) {
-    return res.status(400).json({ error: "Username and result are required." });
-  }
+export async function storeResult(req, res) {
+  const { result, attempts, points, achieved, selectedItemId } = req.body;
 
   try {
     const newResult = new Results({
-      username,
       result,
       attempts,
       points,
       achieved,
+      selectedItemId,
     });
 
     await newResult.save();
@@ -231,14 +235,25 @@ export async function storeResult(req, res) {
 
 export async function dropResults(req, res) {
   try {
-    const result = await Results.deleteMany();
+    const { id } = req.params;
+    console.log(`Attempting to delete result with ID: ${id}`);
+
+    const result = await Results.findByIdAndDelete(id);
+
+    if (!result) {
+      console.log(`No result found with ID: ${id}`);
+      return res.status(404).json({ error: "Result not found" });
+    }
+
     res.status(200).json({
-      msg: "Results deleted successfully!",
-      deletedCount: result.deletedCount,
+      msg: "Result deleted successfully!",
+      deletedId: result._id,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error deleting results", details: error.message });
+    console.error("Error deleting result:", error);
+    res.status(500).json({ error: "Error deleting result", details: error.message });
   }
 }
+
+
+
