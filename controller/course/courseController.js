@@ -276,17 +276,17 @@ export const getContentByCourseId = async (req, res) => {
         let populatedContent;
 
         switch (content.contentType) {
-          case "videos":
-            populatedContent = await Video.findById(content.contentRef);
-            break;
-          case "docs":
-            populatedContent = await Docs.findById(content.contentRef);
-            break;
-          case "questions":
-            populatedContent = await Question.findById(content.contentRef);
-            break;
-          default:
-            populatedContent = null;
+        case "videos":
+          populatedContent = await Video.findById(content.contentRef);
+          break;
+        case "docs":
+          populatedContent = await Docs.findById(content.contentRef);
+          break;
+        case "questions":
+          populatedContent = await Question.findById(content.contentRef);
+          break;
+        default:
+          populatedContent = null;
         }
 
         if (!populatedContent) {
