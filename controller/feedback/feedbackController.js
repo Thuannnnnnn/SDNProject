@@ -3,10 +3,10 @@ import Feedback from "../../model/feedback/feedback.js";
 // Create Feedback
 export const createFeedback = async (req, res) => {
   try {
-    const { courseId, userEmail, ratingPoint, feedbackText } = req.body;
+    const { courseId, userEmail, feedbackText } = req.body;
 
     // Validate required fields
-    if (!courseId || !userEmail || !ratingPoint) {
+    if (!courseId || !userEmail) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -18,7 +18,6 @@ export const createFeedback = async (req, res) => {
     const feedback = new Feedback({
       courseId,
       userEmail,
-      ratingPoint,
       feedbackText,
     });
 
@@ -43,9 +42,7 @@ export const getFeedbackByCourseId = async (req, res) => {
     const feedback = await Feedback.find({ courseId: courseId });
 
     if (!feedback || feedback.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No feedback found for this course." });
+      return res.status(404).json({ message: "No feedback found for this course." });
     }
 
     res.status(200).json(feedback);
@@ -53,6 +50,7 @@ export const getFeedbackByCourseId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 // Get Feedback by User Email
 export const getFeedbackByUserEmail = async (req, res) => {
   try {
@@ -60,9 +58,7 @@ export const getFeedbackByUserEmail = async (req, res) => {
     const feedback = await Feedback.find({ userEmail: email });
 
     if (!feedback || feedback.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No feedback found for this email." });
+      return res.status(404).json({ message: "No feedback found for this email." });
     }
 
     res.status(200).json(feedback);
@@ -90,7 +86,7 @@ export const getAllFeedback = async (req, res) => {
 export const updateFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    const { courseId, userEmail, ratingPoint, feedbackText} = req.body;
+    const { courseId, userEmail, feedbackText } = req.body;
 
     const feedback = await Feedback.findById(id);
 
@@ -98,14 +94,43 @@ export const updateFeedback = async (req, res) => {
       return res.status(404).json({ message: "Feedback not found" });
     }
 
-    feedback.course_id = courseId || feedback.course_id;
-    feedback.user_email = userEmail || feedback.user_email;
-    feedback.rating_point = ratingPoint || feedback.rating_point;
-    feedback.feedback_text = feedbackText || feedback.feedback_text;
+    feedback.courseId = courseId || feedback.courseId;
+    feedback.userEmail = userEmail || feedback.userEmail;
+    feedback.feedbackText = feedbackText || feedback.feedbackText;
 
     const updatedFeedback = await feedback.save();
     res.status(200).json({
       message: "Feedback updated successfully!",
+      feedback: updatedFeedback,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Reply to feedback
+export const replyToFeedback = async (req, res) => {
+  try {
+    const { feedbackId } = req.params;
+    const { replyText, repliedBy } = req.body;
+
+    if (!replyText || !repliedBy) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const feedback = await Feedback.findById(feedbackId);
+    if (!feedback) {
+      return res.status(404).json({ message: "Feedback not found" });
+    }
+
+    feedback.replies.push({
+      replyText,
+      repliedBy,
+    });
+
+    const updatedFeedback = await feedback.save();
+    res.status(200).json({
+      message: "Reply added successfully!",
       feedback: updatedFeedback,
     });
   } catch (error) {
@@ -124,6 +149,39 @@ export const deleteFeedback = async (req, res) => {
     }
 
     res.status(200).json({ message: "Feedback deleted successfully!" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete Feedback Reply
+
+// Delete Feedback Reply
+export const deleteFeedbackReply = async (req, res) => {
+  try {
+    const { feedbackId, replyId } = req.params;
+
+    // Find the feedback by feedbackId
+    const feedback = await Feedback.findById(feedbackId);
+    if (!feedback) {
+      return res.status(404).json({ message: "Feedback not found" });
+    }
+
+    // Find the index of the reply by replyId (_id of the reply)
+    const replyIndex = feedback.replies.findIndex((reply) => reply.replyId === replyId);
+    if (replyIndex === -1) {
+      return res.status(404).json({ message: "Reply not found" });
+    }
+
+    // Remove the reply from the array using its index
+    feedback.replies.splice(replyIndex, 1);
+
+    // Save the updated feedback document
+    const updatedFeedback = await feedback.save();
+    res.status(200).json({
+      message: "Reply deleted successfully!",
+      feedback: updatedFeedback,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
