@@ -5,7 +5,9 @@ import {
   getAllFeedback,
   updateFeedback,
   deleteFeedback,
-  getFeedbackByCourseId
+  getFeedbackByCourseId,
+  replyToFeedback,  // Route mới cho reply
+  deleteFeedbackReply // Route mới để xóa reply
 } from '../controller/feedback/feedbackController.js';
 
 const router = express.Router();
@@ -27,5 +29,11 @@ router.put('/update/:id', updateFeedback);
 
 // Delete feedback by ID
 router.delete('/delete/:id', deleteFeedback);
+
+// Route để thêm reply cho feedback
+router.post('/reply/:feedbackId', replyToFeedback);
+
+// Route để xóa reply của feedback
+router.delete('/deleteReply/:feedbackId/:replyId', deleteFeedbackReply);
 
 export default router;
