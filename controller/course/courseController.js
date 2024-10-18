@@ -248,7 +248,6 @@ export const updatedCourse = async (req, res) => {
   }
 };
 
-
 export const deleteCourse = async (req, res) => {
   try {
     const courseId = req.params.courseId;
@@ -308,6 +307,7 @@ export const getContentByCourseId = async (req, res) => {
     res.status(200).json({
       courseId: course.courseId,
       courseName: course.courseName,
+      _id: course._id,
       contents: validContents,
     });
   } catch (error) {
