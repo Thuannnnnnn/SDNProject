@@ -50,8 +50,6 @@ export const updatePassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     const hashOldPassword = crypto.createHash('sha256').update(oldPassword).digest('hex');
-    console.log('Old password entered (hashed):', hashOldPassword);
-    console.log('Hashed password in DB:', user.password);
     if (hashOldPassword !== user.password) {
       return res.status(400).json({ message: 'Old password is incorrect' });
     }
