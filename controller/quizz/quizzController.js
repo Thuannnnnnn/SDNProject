@@ -2,17 +2,27 @@ import Question from "../../model/quizz/question.js";
 import Results from "../../model/quizz/answers.js";
 import XLSX from "xlsx";
 
-export async function getQuestions(req, res) {
+export const getQuestions = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const questions = await Question.find();
+    const quiz = await Question.findById(id);
+
+    if (!quiz) {
+      return res.status(404).json({ error: "Quiz not found" });
+    }
+
+    const questions = quiz.questions;
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({ error: "Questions not found" });
+    }
+
     res.status(200).json(questions);
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error fetching questions", details: error.message });
+    res.status(500).json({ error: "Error fetching questions", details: error.message });
   }
-}
-
+};
 export async function addQuestions(req, res) {
   const { questions } = req.body;
 
