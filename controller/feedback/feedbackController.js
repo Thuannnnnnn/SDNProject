@@ -40,11 +40,6 @@ export const getFeedbackByCourseId = async (req, res) => {
   try {
     const { courseId } = req.params;
     const feedback = await Feedback.find({ courseId: courseId });
-
-    if (!feedback || feedback.length === 0) {
-      return res.status(404).json({ message: "No feedback found for this course." });
-    }
-
     res.status(200).json(feedback);
   } catch (error) {
     res.status(500).json({ message: error.message });
