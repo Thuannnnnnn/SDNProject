@@ -1,6 +1,5 @@
 import Course from "../../model/course/courseModel.js";
 import Docs from "../../model/docs/docsModel.js";
-import Exam from "../../model/exam/exam.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
 function isNumber(value) {
@@ -50,14 +49,14 @@ export const getAllCourses = async (req, res) => {
         const validContents = populatedContents.filter(
           (content) => content !== null
         );
-        const populatedExam = await Exam.findById(course.exam);
+        // const populatedExam = await Exam.findById(course.exam);
         // if (!populatedExam) {
         //   return null;
         // }
         return {
           ...course.toObject(),
           contents: validContents,
-          populatedExam,
+          // populatedExam,
         };
       })
     );
@@ -86,8 +85,6 @@ export const getCourseById = async (req, res) => {
         // Dựa vào contentType để lấy dữ liệu từ contentRef
         if (content.contentType === "videos") {
           populatedContent = await Video.findById(content.contentRef);
-        } else if (content.contentType === "exams") {
-          populatedContent = await Exam.findById(content.contentRef);
         } else if (content.contentType === "docs") {
           populatedContent = await Docs.findById(content.contentRef);
         } else if (content.contentType === "questions") {
