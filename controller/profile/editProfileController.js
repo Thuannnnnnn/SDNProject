@@ -12,14 +12,14 @@ const containerClient = blobServiceClient.getContainerClient(
   process.env.CONTAINER_NAME
 );
 
-const upload = multer({ storage: multer.memoryStorage() }).single("file");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).single('avatar');
 
 export const updateProfile = async (req, res) => {
   const { userId } = req.params;
   const { name, email, gender, phoneNumber } = req.body;
 
   try {
-
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -104,7 +104,7 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-const validExtensions = ['.png', '.jpg', '.jpeg']; // Các định dạng được hỗ trợ
+const validExtensions = ['.png', '.jpg', '.jpeg'];
 
 export const getUserImg = async (req, res) => {
   try {
@@ -140,42 +140,115 @@ export const getUserImg = async (req, res) => {
 };
 
 export const uploadUserAvatar = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const file = req.file;
+  const userId = req.params.userId;
 
-    if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    const blockBlobClient = containerClient.getBlockBlobClient(`${userId}${path.extname(file.originalname)}`);
-    await blockBlobClient.uploadData(file.buffer, {
-      blobHTTPHeaders: { blobContentType: file.mimetype },
-    });
-
-    const fileUrl = blockBlobClient.url;
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { avatarUrl: fileUrl },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json({
-      message: "Image uploaded successfully",
-      fileUrl,
-      user: updatedUser,
-    });
-  } catch (error) {
-    console.error("Error uploading image:", error);
-    return res.status(500).json({ error: "Failed to upload image" });
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
   }
+
+  upload(req, res, async function (err) {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const blobName = `${userId}${path.extname(file.originalname).toLowerCase()}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      });
+
+      const fileUrl = blockBlobClient.url;
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { avatarUrl: fileUrl },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({
+        message: "Image uploaded successfully",
+        fileUrl,
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return res.status(500).json({ error: "Failed to upload image" });
+    }
+  });
 };
 
+export const updateUserAvatar = async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  upload(req, res, async function (err) {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    try {
+      const file = req.file;
+      if (!file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      let fileFound = false;
+
+      for (const ext of validExtensions) {
+        const blobName = `${userId}${ext}`;
+        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+        if (await blockBlobClient.exists()) {
+          fileFound = true;
+          await blockBlobClient.delete();
+          break;
+        }
+      }
+
+      const blobName = `${userId}${path.extname(file.originalname).toLowerCase()}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+      await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: { blobContentType: file.mimetype },
+      });
+
+      const fileUrl = blockBlobClient.url;
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { avatarUrl: fileUrl },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({
+        message: "Image updated successfully",
+        fileUrl,
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("Error updating image:", error);
+      return res.status(500).json({ error: "Failed to update image" });
+    }
+  });
+};
 
 export const deleteUserAvatar = async (req, res) => {
   const userId = req.params.userId;
