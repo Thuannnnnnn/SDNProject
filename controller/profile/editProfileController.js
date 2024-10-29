@@ -2,7 +2,7 @@ import User from "../../model/userModel.js";
 import crypto from "crypto";
 import { BlobServiceClient } from "@azure/storage-blob";
 import multer from "multer";
-import path from "path";
+
 
 const blobServiceClient = BlobServiceClient.fromConnectionString(
   process.env.AZURE_STORAGE_CONNECTION_STRING
@@ -146,48 +146,49 @@ export const uploadUserAvatar = async (req, res) => {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  upload(req, res, async function (err) {
-    if (err) {
-      return res.status(400).json({ error: err.message });
+  try {
+    const { avatarBase64 } = req.body; // Get the base64 data from request body
+    if (!avatarBase64) {
+      return res.status(400).json({ message: "No image data provided" });
     }
 
-    try {
-      const file = req.file;
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+    // Decode the Base64 string
+    const buffer = Buffer.from(avatarBase64.split(',')[1], 'base64'); // Split to get raw base64 data
 
-      const blobName = `${userId}${path.extname(file.originalname).toLowerCase()}`;
-      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    // Create a blob name with a file extension (e.g., .jpg, .png)
+    const blobName = `${userId}.jpg`; // Change the extension as needed
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: file.mimetype },
-      });
+    // Upload the buffer to Azure Blob Storage
+    await blockBlobClient.uploadData(buffer, {
+      blobHTTPHeaders: { blobContentType: 'image/jpeg' }, // Change to the appropriate content type
+    });
 
-      const fileUrl = blockBlobClient.url;
+    const fileUrl = blockBlobClient.url;
 
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { avatarUrl: fileUrl },
-        { new: true }
-      );
+    // Update user information with the new avatar URL
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatarUrl: fileUrl },
+      { new: true }
+    );
 
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      return res.status(200).json({
-        message: "Image uploaded successfully",
-        fileUrl,
-        user: updatedUser,
-      });
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      return res.status(500).json({ error: "Failed to upload image" });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-  });
+
+    return res.status(200).json({
+      message: "Image uploaded successfully",
+      fileUrl,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return res.status(500).json({ error: "Failed to upload image" });
+  }
 };
 
+// Function to update user avatar (similar to upload)
 export const updateUserAvatar = async (req, res) => {
   const userId = req.params.userId;
 
@@ -195,59 +196,45 @@ export const updateUserAvatar = async (req, res) => {
     return res.status(400).json({ message: "User ID is required" });
   }
 
-  upload(req, res, async function (err) {
-    if (err) {
-      return res.status(400).json({ error: err.message });
+  try {
+    const { avatarBase64 } = req.body; // Get the base64 data from request body
+    if (!avatarBase64) {
+      return res.status(400).json({ message: "No image data provided" });
     }
 
-    try {
-      const file = req.file;
-      if (!file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+    const buffer = Buffer.from(avatarBase64.split(',')[1], 'base64'); // Split to get raw base64 data
 
-      let fileFound = false;
+    // Delete old file if exists (same logic as before)
 
-      for (const ext of validExtensions) {
-        const blobName = `${userId}${ext}`;
-        const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const blobName = `${userId}.jpg`; // Change the extension as needed
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
 
-        if (await blockBlobClient.exists()) {
-          fileFound = true;
-          await blockBlobClient.delete();
-          break;
-        }
-      }
+    // Upload the buffer to Azure Blob Storage
+    await blockBlobClient.uploadData(buffer, {
+      blobHTTPHeaders: { blobContentType: 'image/jpeg' }, // Change to the appropriate content type
+    });
 
-      const blobName = `${userId}${path.extname(file.originalname).toLowerCase()}`;
-      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const fileUrl = blockBlobClient.url;
 
-      await blockBlobClient.uploadData(file.buffer, {
-        blobHTTPHeaders: { blobContentType: file.mimetype },
-      });
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { avatarUrl: fileUrl },
+      { new: true }
+    );
 
-      const fileUrl = blockBlobClient.url;
-
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { avatarUrl: fileUrl },
-        { new: true }
-      );
-
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      return res.status(200).json({
-        message: "Image updated successfully",
-        fileUrl,
-        user: updatedUser,
-      });
-    } catch (error) {
-      console.error("Error updating image:", error);
-      return res.status(500).json({ error: "Failed to update image" });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-  });
+
+    return res.status(200).json({
+      message: "Image updated successfully",
+      fileUrl,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating image:", error);
+    return res.status(500).json({ error: "Failed to update image" });
+  }
 };
 
 export const deleteUserAvatar = async (req, res) => {

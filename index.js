@@ -25,9 +25,9 @@ const app = express();
 const port = 8080;
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan("combined"));
 connectDB();
