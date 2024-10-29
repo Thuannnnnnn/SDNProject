@@ -25,8 +25,8 @@ export const loginWithGoogle = async (req, res) => {
       });
       await newCart.save();
     }
-    const jwtToken = encode(user.email, user.name);
-    res.cookie("token", jwtToken, {
+    const token = encode(user.email, user.name);
+    res.cookie("token", token, {
       httpOnly: true,
       maxAge: 2 * 60 * 60 * 1000,
     });
@@ -37,7 +37,7 @@ export const loginWithGoogle = async (req, res) => {
     return res.status(200).json({
       message: "Login successful",
       user: userWithoutPassword,
-      jwtToken,
+      token,
     });
   } catch (error) {
     if (error.code == "auth/argument-error") {
