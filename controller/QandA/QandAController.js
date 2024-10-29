@@ -133,6 +133,31 @@ export const replyToQandA = async (req, res) => {
   }
 };
 
+// Update a reply within a Q&A
+export const updateQandAReply = async (req, res) => {
+  try {
+    const { QandAId, replyId } = req.params;
+    const { replyText } = req.body;
+
+    // Tìm QandA theo QandAId
+    const qanda = await QandA.findById(QandAId);
+    if (!qanda) return res.status(404).json({ message: "QandA not found" });
+
+    // Tìm reply dựa trên replyId tùy chỉnh
+    const reply = qanda.replies.find(reply => reply.replyId === replyId);
+    if (!reply) return res.status(404).json({ message: "Reply not found" });
+
+    // Cập nhật replyText
+    reply.replyText = replyText || reply.replyText;
+
+    // Lưu thay đổi
+    const updatedQandA = await qanda.save();
+    res.status(200).json({ message: "Reply updated successfully!", QandA: updatedQandA });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 export const deleteQandA = async (req, res) => {
   try {
