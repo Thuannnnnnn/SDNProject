@@ -1,20 +1,12 @@
 import User from "../../model/userModel.js";
 import crypto from "crypto";
 import { BlobServiceClient } from "@azure/storage-blob";
-import multer from "multer";
-
-
 const blobServiceClient = BlobServiceClient.fromConnectionString(
   process.env.AZURE_STORAGE_CONNECTION_STRING
 );
-
 const containerClient = blobServiceClient.getContainerClient(
   process.env.CONTAINER_NAME
 );
-
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage }).single('avatar');
-
 export const updateProfile = async (req, res) => {
   const { userId } = req.params;
   const { name, email, gender, phoneNumber } = req.body;

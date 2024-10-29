@@ -61,10 +61,6 @@ export const addOrderHistory = async (req, res) => {
 export const getAllOrderHistory = async (req, res) => {
   try {
     const orderHistories = await OrderHistory.find().populate('courses.courseId', 'courseName');
-
-    if (!orderHistories.length) {
-      return res.status(404).json({ message: 'No order history found' });
-    }
     const formattedOrderHistories = orderHistories.map(order => ({
       _id: order._id,
       orderId: order.orderId,
@@ -86,10 +82,6 @@ export const getOrderHistoryByEmail = async (req, res) => {
   try {
     const email = req.params.email;
     const orderHistory = await OrderHistory.findOne({ userEmail: email }).populate('courses.courseId', 'courseName');
-
-    if (!orderHistory) {
-      return res.status(404).json({ message: 'No order history found' });
-    }
     const formattedOrderHistory = {
       _id: orderHistory._id,
       orderId: orderHistory.orderId,
