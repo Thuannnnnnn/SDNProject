@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';  // Import UUID to generate unique IDs
 
-const feedbackSchema = new mongoose.Schema({
+const QandASchema = new mongoose.Schema({
   courseId: {
     type: String,
     required: true,
@@ -10,7 +10,7 @@ const feedbackSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  feedbackText: {
+  QandAText: {
     type: String,
     default: '',
   },
@@ -41,6 +41,6 @@ const feedbackSchema = new mongoose.Schema({
 });
 
 // Prevent model overwrite error
-const Feedback = mongoose.models.Feedback || mongoose.model('Feedback', feedbackSchema);
+const QandA = mongoose.models.QandA || mongoose.model('QandA', QandASchema);
 
-export default Feedback;
+export default QandA;

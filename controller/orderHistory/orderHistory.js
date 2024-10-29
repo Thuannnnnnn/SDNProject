@@ -57,3 +57,53 @@ export const addOrderHistory = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const getAllOrderHistory = async (req, res) => {
+  try {
+    const orderHistories = await OrderHistory.find().populate('courses.courseId', 'courseName');
+
+    if (!orderHistories.length) {
+      return res.status(404).json({ message: 'No order history found' });
+    }
+    const formattedOrderHistories = orderHistories.map(order => ({
+      _id: order._id,
+      orderId: order.orderId,
+      userEmail: order.userEmail,
+      price: order.price,
+      courses: order.courses.map(course => ({
+        courseName: course.courseId ? course.courseId.courseName : 'N/A',
+        purchaseDate: course.purchaseDate,
+      })),
+    }));
+
+    return res.status(200).json(formattedOrderHistories);
+  } catch (error) {
+    console.error('Error fetching order histories:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+export const getOrderHistoryByEmail = async (req, res) => {
+  try {
+    const email = req.params.email;
+    const orderHistory = await OrderHistory.findOne({ userEmail: email }).populate('courses.courseId', 'courseName');
+
+    if (!orderHistory) {
+      return res.status(404).json({ message: 'No order history found' });
+    }
+    const formattedOrderHistory = {
+      _id: orderHistory._id,
+      orderId: orderHistory.orderId,
+      userEmail: orderHistory.userEmail,
+      price: orderHistory.price,
+      courses: orderHistory.courses.map(course => ({
+        courseName: course.courseId ? course.courseId.courseName : 'N/A',
+        purchaseDate: course.purchaseDate,
+      })),
+    };
+
+    return res.status(200).json([formattedOrderHistory]);
+  } catch (error) {
+    console.error('Error fetching order histories:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
