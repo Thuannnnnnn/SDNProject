@@ -120,7 +120,7 @@ export const getRatingsCountByType = async (req, res) => {
 // Update an existing rating
 export const updateRating = async (req, res) => {
   const { ratingId } = req.params;
-  const { ratingPoint, comment } = req.body;
+  const { ratingPoint, feedback } = req.body;
 
   if (typeof ratingPoint !== 'number' || ratingPoint < 1 || ratingPoint > 5) {
     return res.status(400).json({ message: 'ratingPoint must be a number between 1 and 5' });
@@ -129,7 +129,7 @@ export const updateRating = async (req, res) => {
   try {
     const updatedRating = await FeedbackAndRating.findByIdAndUpdate(
       ratingId,
-      { ratingPoint, comment, updatedAt: Date.now() },
+      { ratingPoint, feedback, updatedAt: Date.now() },
       { new: true }
     );
 
