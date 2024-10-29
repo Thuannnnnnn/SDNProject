@@ -21,6 +21,7 @@ import  userRouter  from "./router/userRouter.js";
 import processRouter from "./router/processRouter.js";
 import ratingRouter from "./router/ratingRouter.js";
 import examRouter from "./router/examsRouter.js";
+import FilterRouter from "./router/filterRouter.js";
 const app = express();
 const port = 8080;
 
@@ -47,6 +48,7 @@ app.use("/api/process", authMiddleware, processRouter);
 app.use("/api/search", search);
 app.use("/api/user", userRouter);
 app.use("/api/rating", ratingRouter);
+app.use("/api/course", FilterRouter);
 app.get("/", (req, res) => {
   res.send("Hello, Swagger!");
 });
