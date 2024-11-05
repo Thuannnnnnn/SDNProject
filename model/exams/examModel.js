@@ -7,10 +7,6 @@ const examSchema = new Schema({
     type: String,
     required: true,
   },
-  userEmail: {
-    type: String,
-    required: true,
-  },
   questionNumber: {
     type: Number,
     required: true, // Automatically calculated when creating/updating the exam

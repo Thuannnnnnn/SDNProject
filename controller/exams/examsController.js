@@ -1,10 +1,8 @@
 // controllers/examController.js
 import Exam from "../../model/exams/examModel.js";
 import Course from "../../model/course/courseModel.js";
-import User from "../../model/userModel.js";
 import ExamResults from "../../model/exams/examResultsModel.js";
 
-// Helper function to fetch questions by courseId
 async function getQuestionsByCourseId(courseId) {
   const course = await Course.findById(courseId).populate({
     path: "contents",
@@ -18,7 +16,8 @@ async function getQuestionsByCourseId(courseId) {
 
   let allQuestions = [];
   course.contents.forEach((content) => {
-    if (content.contentType === "questions" && content.contentRef.questions) {
+    // Ensure contentRef and questions are present
+    if (content.contentType === "questions" && content.contentRef && content.contentRef.questions) {
       content.contentRef.questions.forEach((question) => {
         allQuestions.push({
           questionId: question._id,
@@ -36,35 +35,28 @@ async function getQuestionsByCourseId(courseId) {
 
   return allQuestions;
 }
+
 // Helper function to shuffle and select random questions
 function getRandomQuestions(questions, number) {
-  // Shuffle the questions array
   const shuffled = questions.sort(() => 0.5 - Math.random());
-  // Select the first 'number' elements from the shuffled array
   return shuffled.slice(0, number);
 }
 
 // Create or update an exam
 export const createOrUpdateExam = async (req, res) => {
-  const { courseId, userEmail, questionNumber } = req.body;
+  const { courseId, questionNumber } = req.body;
 
   try {
-    const user = await User.findOne({ email: userEmail });
-    if (!user || user.role !== "admin") {
-      return res
-        .status(403)
-        .json({ error: "Only admins can create or update exams." });
-    }
-
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ error: "Course not found" });
     }
 
     const allQuestions = await getQuestionsByCourseId(courseId);
-    if (allQuestions.length !== questionNumber) {
+
+    if (allQuestions.length < questionNumber) {
       return res.status(400).json({
-        error: `The number of questions in the course (${questions.length}) does not match the provided questionNumber (${questionNumber}).`,
+        error: `The number of questions available (${allQuestions.length}) is less than the provided questionNumber (${questionNumber}).`,
       });
     }
 
@@ -82,7 +74,6 @@ export const createOrUpdateExam = async (req, res) => {
     } else {
       exam = new Exam({
         courseId,
-        userEmail,
         questions,
         questionNumber,
       });
@@ -93,16 +84,11 @@ export const createOrUpdateExam = async (req, res) => {
     await exam.save();
     await course.save();
 
-    res
-      .status(201)
-      .json({ msg: "Exam created/updated successfully!", data: exam });
+    res.status(201).json({ msg: "Exam created/updated successfully!", data: exam });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error creating/updating exam", details: error.message });
+    res.status(500).json({ error: "Error creating/updating exam", details: error.message });
   }
 };
-
 // Get exam by courseId
 export const getExamByCourseId = async (req, res) => {
   try {
