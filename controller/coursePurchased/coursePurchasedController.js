@@ -76,15 +76,20 @@ export const deleteCoursePurchase = async (req, res) => {
 
 export const getCoursePurchasesByEmail = async (req, res) => {
   try {
-    const email  = req.params.email;
+    const email = req.params.email;
+
     // Find course purchases by user email and populate course details
     const coursePurchases = await CoursePurchased.findOne({ userEmail: email }).populate(
       "courses.courseId" // Populates course details from the Course model
     );
 
     if (!coursePurchases) {
-      return res.status(404).json({ message: "No course purchases found for this email" });
+      return res.status(200).json({
+        message: "No course purchases found for this email",
+        CoursePurchases: null, // Indicate no data found
+      });
     }
+
     res.status(200).json({
       CoursePurchases: {
         ...coursePurchases.toObject(),
@@ -98,6 +103,7 @@ export const getCoursePurchasesByEmail = async (req, res) => {
     });
   }
 };
+
 export const checkCourseOwnership = async (req, res) => {
   try {
     const userEmail = req.params.email;
