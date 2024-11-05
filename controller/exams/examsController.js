@@ -110,6 +110,7 @@ export const getExamByCourseId = async (req, res) => {
   }
 };
 
+
 // Get exam details by examId (for users to take)
 export const getExamById = async (req, res) => {
   const { examId } = req.params;
@@ -256,6 +257,25 @@ export const getExamResultByUser = async (req, res) => {
       .json({ error: "Error fetching exam result", details: error.message });
   }
 };
+
+export const getExamAll = async (req, res) => {
+  try {
+    const attempt = await ExamResults.find();
+
+    if (!attempt) {
+      return res
+        .status(404)
+        .json({ error: "No exam result found" });
+    }
+
+    res.status(200).json(attempt);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error fetching exam result", details: error.message });
+  }
+};
+
 // Check if a user has already attempted an exam
 export const hasUserAttemptedExam = async (req, res) => {
   const { examId, userEmail } = req.params;

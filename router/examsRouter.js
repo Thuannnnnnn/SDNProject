@@ -6,7 +6,8 @@ import {
   submitExam,
   getExamAttemptsByUser,
   getExamResultByUser,
-  hasUserAttemptedExam
+  hasUserAttemptedExam,
+  getExamAll
 } from "../controller/exams/examsController.js";
 
 const examRouter = express.Router();
@@ -167,4 +168,5 @@ examRouter.post("/submit", submitExam);
 examRouter.get("/user/:userEmail/attempts", getExamAttemptsByUser);
 examRouter.get("/result/:courseId/:userEmail", getExamResultByUser);
 examRouter.get("/:examId/:userEmail/attempted", hasUserAttemptedExam);
+examRouter.get("/resultAll/getAll", getExamAll);
 export default examRouter;
