@@ -7,7 +7,7 @@ import multer from 'multer';
 
 export const quizzRouter = express.Router();
 
-quizzRouter.get("/questions", quizz.getQuestions);
+quizzRouter.get("/questions/:id", quizz.getQuestions);
 
 quizzRouter.post("/questions", quizz.addQuestions);
 
