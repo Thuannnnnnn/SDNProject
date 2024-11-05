@@ -2,7 +2,10 @@ import Course from "../../model/course/courseModel.js";
 import Docs from "../../model/docs/docsModel.js";
 import Question from "../../model/quizz/question.js";
 import Video from "../../model/video/videoModel.js";
-import { dropQuestionId, updateQuestions } from "../quizz/quizzController.js";
+import {
+  dropQuestionId,
+  updateOrAddQuestion,
+} from "../quizz/quizzController.js";
 
 function generateId(contentName, courseId) {
   const firstChars = contentName
@@ -164,16 +167,9 @@ export const updateContent = async (req, res) => {
 
     if (contentType === "questions") {
       const quizData = updatedContent.quizData;
-      if (
-        quizData &&
-        Array.isArray(quizData.questions) &&
-        quizData.questions.length > 0
-      ) {
-        quizData.questions.forEach((questionItem) => {
-          const { _id, question, options, answer } = questionItem;
 
-          updateQuestions(quizData._id, _id, question, options, answer);
-        });
+      if (quizData) {
+        updateOrAddQuestion(quizData._id, quizData.questions);
 
         id = quizData._id;
       }

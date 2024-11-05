@@ -20,7 +20,9 @@ export const getQuestions = async (req, res) => {
 
     res.status(200).json(questions);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching questions", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error fetching questions", details: error.message });
   }
 };
 export async function addQuestions(req, res) {
@@ -53,73 +55,46 @@ export async function addQuestions(req, res) {
   }
 }
 
-export async function updateQuestion(req, res) {
-  const { documentId, questionId } = req.params;
-
-  const { question, options, answer } = req.body;
-
-  if (!question || !options || answer === undefined) {
-    return res
-      .status(400)
-      .json({ error: "Question, options, and answer must be provided." });
-  }
-
-  try {
-    const questionsDocument = await Question.findById(documentId);
-    if (!questionsDocument) {
-      return res.status(404).json({ error: "No questions document found." });
-    }
-
-    const questionToUpdate = questionsDocument.questions.id(questionId);
-    if (!questionToUpdate) {
-      return res.status(404).json({ error: "Question not found." });
-    }
-
-    questionToUpdate.question = question;
-    questionToUpdate.options = options;
-    questionToUpdate.answer = answer;
-
-    await questionsDocument.save();
-    res
-      .status(200)
-      .json({ msg: "Question updated successfully!", data: questionToUpdate });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error updating question", details: error.message });
-  }
-}
-
-export async function updateQuestions(
+export async function updateOrAddQuestion(
   documentId,
-  questionId,
-  question,
-  options,
-  answer
+  updatedQuestions // Là một mảng các câu hỏi đã được cập nhật
 ) {
-  if (!question || !options || answer === undefined) {
-    return 400;
+  // Kiểm tra đầu vào hợp lệ
+  if (!Array.isArray(updatedQuestions)) {
+    return { status: 400, message: "Invalid input data" };
   }
 
   try {
+    // Tìm tài liệu câu hỏi dựa trên documentId
     const questionsDocument = await Question.findById(documentId);
     if (!questionsDocument) {
-      return 404;
+      return { status: 404, message: "Document not found" };
     }
 
-    const questionToUpdate = questionsDocument.questions.id(questionId);
-    if (!questionToUpdate) {
-      return 404;
-    }
+    // Tạo một mảng mới để lưu trữ câu hỏi sau khi cập nhật
+    const newQuestions = updatedQuestions.map((q) => {
+      const existingQuestion = questionsDocument.questions.id(q._id);
+      if (existingQuestion) {
+        // Nếu câu hỏi đã tồn tại, cập nhật
+        existingQuestion.question = q.question;
+        existingQuestion.options = q.options;
+        existingQuestion.answer = q.answer;
+        return existingQuestion;
+      }
+      // Nếu câu hỏi không tồn tại, thêm vào mảng mới
+      return { question: q.question, options: q.options, answer: q.answer };
+    });
 
-    questionToUpdate.question = question;
-    questionToUpdate.options = options;
-    questionToUpdate.answer = answer;
+    // Cập nhật mảng questions bằng mảng mới
+    questionsDocument.questions = newQuestions;
 
+    // Lưu tài liệu với các thay đổi
     await questionsDocument.save();
-    return 200;
+    return { status: 200, message: "Questions updated successfully" };
   } catch (error) {
-    return error;
+    // Xử lý lỗi trong quá trình cập nhật
+    console.error("Error in updateQuestions:", error);
+    return { status: 500, message: "An error occurred", error: error.message };
   }
 }
 
@@ -204,17 +179,18 @@ export async function dropQuestionId(Id) {
 export async function getResult(req, res) {
   try {
     const results = await Results.find();
-    res.status(200).json(results.map(result => ({
-      ...result.toObject(),
-      selectedItemId: result.selectedItemId,
-    })));
+    res.status(200).json(
+      results.map((result) => ({
+        ...result.toObject(),
+        selectedItemId: result.selectedItemId,
+      }))
+    );
   } catch (error) {
     res
       .status(500)
       .json({ error: "Error fetching results", details: error.message });
   }
 }
-
 
 export async function storeResult(req, res) {
   const { result, attempts, points, achieved, selectedItemId } = req.body;
@@ -255,9 +231,8 @@ export async function dropResults(req, res) {
     });
   } catch (error) {
     console.error("Error deleting result:", error);
-    res.status(500).json({ error: "Error deleting result", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error deleting result", details: error.message });
   }
 }
-
-
-
