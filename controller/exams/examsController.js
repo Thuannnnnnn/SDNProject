@@ -17,7 +17,11 @@ async function getQuestionsByCourseId(courseId) {
   let allQuestions = [];
   course.contents.forEach((content) => {
     // Ensure contentRef and questions are present
-    if (content.contentType === "questions" && content.contentRef && content.contentRef.questions) {
+    if (
+      content.contentType === "questions" &&
+      content.contentRef &&
+      content.contentRef.questions
+    ) {
       content.contentRef.questions.forEach((question) => {
         allQuestions.push({
           questionId: question._id,
@@ -84,9 +88,13 @@ export const createOrUpdateExam = async (req, res) => {
     await exam.save();
     await course.save();
 
-    res.status(201).json({ msg: "Exam created/updated successfully!", data: exam });
+    res
+      .status(201)
+      .json({ msg: "Exam created/updated successfully!", data: exam });
   } catch (error) {
-    res.status(500).json({ error: "Error creating/updating exam", details: error.message });
+    res
+      .status(500)
+      .json({ error: "Error creating/updating exam", details: error.message });
   }
 };
 // Get exam by courseId
@@ -109,7 +117,6 @@ export const getExamByCourseId = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 // Get exam details by examId (for users to take)
 export const getExamById = async (req, res) => {
@@ -141,6 +148,8 @@ export const getExamById = async (req, res) => {
 };
 
 // Submit exam attempt
+// backend/api/examRoutes.js
+
 export const submitExam = async (req, res) => {
   const { courseId, examId, userEmail, answers } = req.body;
 
@@ -182,34 +191,36 @@ export const submitExam = async (req, res) => {
       examId,
       userEmail,
     });
+
     if (existingAttempt) {
+      // Update the attempt with the new score, review, and attempt date
       existingAttempt.score = percentage;
       existingAttempt.passed = passed;
       existingAttempt.answers = review;
-      existingAttempt.courseId = courseId;
-      existingAttempt.attemptDate = attemptDate; // Update attempt date
+      existingAttempt.attemptDate = attemptDate;
       await existingAttempt.save();
 
       return res.status(200).json({
         msg: "Exam attempt updated successfully!",
-        data: { score, passed, review, attemptDate },
+        data: { score: percentage, passed, review, attemptDate },
       });
     }
 
+    // Save new attempt if no existing attempt found
     const examAttempt = new ExamResults({
       courseId,
       examId,
       userEmail,
       answers: review,
-      score,
+      score: percentage,
       passed,
-      attemptDate, // Set attempt date
+      attemptDate,
     });
 
     await examAttempt.save();
     res.status(200).json({
       msg: "Exam submitted successfully!",
-      data: { score, passed, review, attemptDate },
+      data: { score: percentage, passed, review, attemptDate },
     });
   } catch (error) {
     res
@@ -263,9 +274,7 @@ export const getExamAll = async (req, res) => {
     const attempt = await ExamResults.find();
 
     if (!attempt) {
-      return res
-        .status(404)
-        .json({ error: "No exam result found" });
+      return res.status(404).json({ error: "No exam result found" });
     }
 
     res.status(200).json(attempt);
@@ -287,11 +296,9 @@ export const hasUserAttemptedExam = async (req, res) => {
     }
     return res.status(200).json({ attempted: false });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        error: "Error checking exam attempt status",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Error checking exam attempt status",
+      details: error.message,
+    });
   }
 };
